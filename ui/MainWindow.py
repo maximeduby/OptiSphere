@@ -23,8 +23,6 @@ class MainWindow(QMainWindow):
         self.tabs = QTabWidget()
         self.cam_tab = CameraTab(self)
         self.tabs.addTab(self.cam_tab, "Camera")
-        self.tabs.addTab(SnapshotTab(), "snapshot1.jpg")
-        self.tabs.addTab(SnapshotTab(), "snapshot2.jpg")
         self.tabs.tabCloseRequested.connect(self.close_tab)
         self.tabs.setTabsClosable(True)
 
@@ -38,7 +36,8 @@ class MainWindow(QMainWindow):
         self.tabs_layout.addWidget(self.tabs)
 
         # sidebar layout
-        self.sidebar_layout = SidebarLayout()
+        self.sidebar_layout = SidebarLayout(self.tabs)
+        self.tabs.currentChanged.connect(self.sidebar_layout.update_sidebar)
 
         # Main layout
         main_layout = QHBoxLayout(central_widget)

@@ -1,5 +1,5 @@
 import cv2
-from PySide6.QtCore import Slot, Qt, QSize
+from PySide6.QtCore import Slot, Qt
 from PySide6.QtGui import QImage, QPixmap
 from PySide6.QtWidgets import QWidget, QLabel, QSizePolicy, QVBoxLayout
 
@@ -14,6 +14,7 @@ class CameraTab(QWidget):
         # camera label (widget)
         self.camera = QLabel(self)
         self.camera.setAlignment(Qt.AlignCenter)
+        self.camera.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
         # camera layout
         self.cam_layout = QVBoxLayout()
@@ -29,14 +30,13 @@ class CameraTab(QWidget):
     def update_frame(self, frame):
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         image = QImage(frame.data, frame.shape[1], frame.shape[0], QImage.Format_RGB888)
-        image = image.scaled(800, 800, Qt.KeepAspectRatio)
-        print(self.cam_layout.sizeHint())
+        image = image.scaled(self.camera.size()*0.99, Qt.KeepAspectRatio)
         self.camera.setPixmap(QPixmap.fromImage(image))
 
     @Slot()
     def select_camera(self):
         device_index = self.window.cam_devices_group.checkedAction().data()
-
+        self.window.sidebar_layout.capture.device_index = device_index
         # stop the previous camera thread and create a new one with the selected device index
         self.th.stop()
         self.th = CameraThread(device_index)
