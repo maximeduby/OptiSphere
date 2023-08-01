@@ -21,7 +21,7 @@ class SnapshotTab(QWidget):
     def set_image(self):
         frame = cv2.cvtColor(self.frame, cv2.COLOR_BGR2RGB)
         image = QImage(frame.data, frame.shape[1], frame.shape[0], QImage.Format_RGB888)
-        image = image.scaled(self.snapshot.size(), Qt.KeepAspectRatio)
+        image = image.scaled(self.snapshot.size()*1.2, Qt.KeepAspectRatio)
         self.snapshot.setPixmap(QPixmap.fromImage(image))
 
     def save(self):

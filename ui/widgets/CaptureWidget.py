@@ -4,6 +4,7 @@ from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QHBoxLayout, QPushBu
 
 from configuration import ROOT_DIR
 from core.threads.SnapshotThread import SnapshotThread
+from core.threads.VideoThread import VideoThread
 from ui.widgets.CaptureButton import CaptureButton
 
 
@@ -41,3 +42,6 @@ class CaptureWidget(QWidget):
                 th.start()
                 th.wait()
                 btn.setEnabled(True)
+            case "Video":
+                th = VideoThread(self.device_index)
+

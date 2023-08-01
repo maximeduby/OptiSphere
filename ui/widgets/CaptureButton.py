@@ -6,6 +6,6 @@ from configuration import ROOT_DIR
 
 class CaptureButton(QPushButton):
     def __init__(self, parent_widget, title, icon_path):
-        super().__init__()
+        super().__init__(title)
         self.setIcon(QIcon(ROOT_DIR + "/resources/" + icon_path))
         self.clicked.connect(lambda: parent_widget.capture(self, title))

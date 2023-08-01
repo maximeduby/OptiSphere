@@ -13,7 +13,7 @@ class MainWindow(QMainWindow):
     def __init__(self):
         # window shape init
         super().__init__()
-        self.setWindowTitle("Name of Software")
+        self.setWindowTitle("OptiSphere")
         self.setGeometry(0, 0, 1280, 720)
         geometry = self.frameGeometry()
         geometry.moveCenter(QScreen.availableGeometry(QApplication.primaryScreen()).center())
@@ -104,7 +104,9 @@ class MainWindow(QMainWindow):
                 snapshot_tab.set_image()
                 self.tabs.addTab(snapshot_tab, snapshot_tab.title)
                 self.tabs.setCurrentWidget(snapshot_tab)
-
+            case "VideoThread":
+                self.vid_counter += 1
+                video_tab = VideoTab()
     def open_file(self):
         pass
 
