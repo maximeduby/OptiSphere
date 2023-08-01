@@ -29,14 +29,13 @@ class MainWindow(QMainWindow):
         # central widget
         central_widget = QWidget(self)
         self.setCentralWidget(central_widget)
-        # self.setCentralWidget(self.tabs)
 
         # tabs layout
         self.tabs_layout = QVBoxLayout()
         self.tabs_layout.addWidget(self.tabs)
 
         # sidebar layout
-        self.sidebar_layout = SidebarLayout(self.tabs)
+        self.sidebar_layout = SidebarLayout(self)
         self.tabs.currentChanged.connect(self.sidebar_layout.update_sidebar)
 
         # Main layout
@@ -49,14 +48,19 @@ class MainWindow(QMainWindow):
         self.edit_menu = self.menuBar().addMenu('&Edit')
         self.cam_menu = self.menuBar().addMenu('&Camera')
         self.help_menu = self.menuBar().addMenu('&Help')
-        self.file_menu.addAction('New', lambda: print("New"))
-        self.file_menu.addAction('Open', lambda: print('Open'))
-        self.file_menu.addAction('Exit', QApplication.instance().quit())
+        self.file_menu.addAction('Open', lambda: self.open_file())
+        self.file_menu.addAction('Save', lambda: self.tabs.currentWidget().save())
+        self.file_menu.addAction('Quit', QApplication.instance().quit())
         self.cam_devices_group = QActionGroup(self)
         self.cam_devices_group.setExclusive(True)
         self.update_cameras()
         self.cam_devices_group.triggered.connect(self.cam_tab.select_camera)
         self.cam_devices_group.actions()[0].setChecked(True)
+
+        # variables
+        self.ss_counter = 0
+        self.vid_counter = 0
+        self.tl_counter = 0
 
         # display the window
         self.show()
@@ -85,7 +89,22 @@ class MainWindow(QMainWindow):
                                            QMessageBox.StandardButton.Cancel)
             if confirm == QMessageBox.StandardButton.Yes:
                 self.tabs.removeTab(index)
+                self.tabs.setCurrentWidget(self.cam_tab)
 
     def closeEvent(self, event):
         self.cam_tab.th.stop()
         event.accept()
+
+    @Slot()
+    def add_tab(self, thread):
+        match thread.__class__.__name__:
+            case "SnapshotThread":
+                self.ss_counter += 1
+                snapshot_tab = SnapshotTab(thread.frame, f"snapshot_{self.ss_counter}")
+                snapshot_tab.set_image()
+                self.tabs.addTab(snapshot_tab, snapshot_tab.title)
+                self.tabs.setCurrentWidget(snapshot_tab)
+
+    def open_file(self):
+        pass
+

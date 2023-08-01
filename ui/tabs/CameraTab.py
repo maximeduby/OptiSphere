@@ -42,3 +42,6 @@ class CameraTab(QWidget):
         self.th = CameraThread(device_index)
         self.th.cam_signal.connect(self.update_frame)
         self.th.start()
+
+    def save(self):
+        pass

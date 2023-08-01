@@ -8,10 +8,10 @@ from ui.widgets.CaptureButton import CaptureButton
 
 
 class CaptureWidget(QWidget):
-    def __init__(self, tabs):
+    def __init__(self, wnd):
         super().__init__()
         self.device_index = 0
-        self.tabs = tabs
+        self.wnd = wnd
 
         layout = QVBoxLayout()
 
@@ -36,5 +36,8 @@ class CaptureWidget(QWidget):
         btn.setEnabled(False)
         match capture_type:
             case "Snapshot":
-                self.th = SnapshotThread(self.device_index, self.tabs, btn)
-                # self.th.start()
+                th = SnapshotThread(self.device_index)
+                th.ss_signal.connect(self.wnd.add_tab)
+                th.start()
+                th.wait()
+                btn.setEnabled(True)
