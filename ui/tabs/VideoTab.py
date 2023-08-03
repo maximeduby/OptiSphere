@@ -1,7 +1,7 @@
 import cv2
 from PySide6.QtCore import Qt, QTimer, Slot
 from PySide6.QtGui import QImage, QPixmap
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QSizePolicy, QPushButton, QHBoxLayout, QSlider
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QSizePolicy, QPushButton, QHBoxLayout, QSlider, QFileDialog
 
 
 class VideoTab(QWidget):
@@ -107,3 +107,22 @@ class VideoTab(QWidget):
 
         timestamp = f"{'{:02d}'.format(min)}:{'{:02d}'.format(sec)}"
         return timestamp
+
+    def save(self):
+        print("Save file")
+        filename = QFileDialog.getSaveFileName(None, "Save Video", self.title, "All files (*.*);Video files(*.*)")
+        print(filename[0])
+        print(filename[1])
+        if filename[0] == '':
+            return
+
+        vid_height, vid_width, channel = self.frames[0].shape
+        print(self.frames[0].shape)
+        size = (vid_width, vid_height)
+        print(size)
+        output = cv2.VideoWriter(f"{filename[0]}.avi", cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'), self.fps, size)
+        for frame in self.frames:
+            output.write(frame)
+            print("+1")
+        output.release()
+        print("done")
