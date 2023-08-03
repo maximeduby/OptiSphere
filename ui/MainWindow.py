@@ -6,6 +6,7 @@ from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QTabWidget, QM
 from ui.SidebarLayout import SidebarLayout
 from ui.tabs.CameraTab import CameraTab
 from ui.tabs.SnapshotTab import SnapshotTab
+from ui.tabs.VideoTab import VideoTab
 
 
 class MainWindow(QMainWindow):
@@ -18,6 +19,11 @@ class MainWindow(QMainWindow):
         geometry = self.frameGeometry()
         geometry.moveCenter(QScreen.availableGeometry(QApplication.primaryScreen()).center())
         self.move(geometry.topLeft())
+
+        # variables
+        self.ss_counter = 1
+        self.vid_counter = 1
+        self.tl_counter = 1
 
         # tabs widget
         self.tabs = QTabWidget()
@@ -57,11 +63,6 @@ class MainWindow(QMainWindow):
         self.cam_devices_group.triggered.connect(self.cam_tab.select_camera)
         self.cam_devices_group.actions()[0].setChecked(True)
 
-        # variables
-        self.ss_counter = 0
-        self.vid_counter = 0
-        self.tl_counter = 0
-
         # display the window
         self.show()
 
@@ -99,14 +100,18 @@ class MainWindow(QMainWindow):
     def add_tab(self, thread):
         match thread.__class__.__name__:
             case "SnapshotThread":
-                self.ss_counter += 1
                 snapshot_tab = SnapshotTab(thread.frame, f"snapshot_{self.ss_counter}")
                 snapshot_tab.set_image()
                 self.tabs.addTab(snapshot_tab, snapshot_tab.title)
                 self.tabs.setCurrentWidget(snapshot_tab)
+                self.ss_counter += 1
             case "VideoThread":
+                # video_tab = VideoTab(thread.path, f"video_{self.vid_counter}")
+                video_tab = VideoTab(thread.recorded_frames, f"video_{self.vid_counter}")
+                video_tab.set_video()
+                self.tabs.addTab(video_tab, video_tab.title)
+                self.tabs.setCurrentWidget(video_tab)
                 self.vid_counter += 1
-                video_tab = VideoTab()
     def open_file(self):
         pass
 

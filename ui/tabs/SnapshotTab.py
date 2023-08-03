@@ -17,7 +17,7 @@ class SnapshotTab(QWidget):
 
         self.setLayout(layout)
 
-    @Slot()
+    # @Slot()
     def set_image(self):
         frame = cv2.cvtColor(self.frame, cv2.COLOR_BGR2RGB)
         image = QImage(frame.data, frame.shape[1], frame.shape[0], QImage.Format_RGB888)

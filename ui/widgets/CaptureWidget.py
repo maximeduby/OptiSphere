@@ -12,7 +12,12 @@ class CaptureWidget(QWidget):
     def __init__(self, wnd):
         super().__init__()
         self.device_index = 0
+        self.isVideoRecording = False
         self.wnd = wnd
+        self.fps = 30
+
+        self.ss_th = SnapshotThread(self.device_index)
+        self.vid_th = VideoThread(self.device_index, self.fps, self.wnd.vid_counter)
 
         layout = QVBoxLayout()
 
@@ -37,11 +42,25 @@ class CaptureWidget(QWidget):
         btn.setEnabled(False)
         match capture_type:
             case "Snapshot":
-                th = SnapshotThread(self.device_index)
-                th.ss_signal.connect(self.wnd.add_tab)
-                th.start()
-                th.wait()
+                self.ss_th = SnapshotThread(self.device_index)
+                self.ss_th.ss_signal.connect(self.wnd.add_tab)
+                self.ss_th.start()
+                self.ss_th.wait()
                 btn.setEnabled(True)
             case "Video":
-                th = VideoThread(self.device_index)
+                btn.setEnabled(True)
+                if not self.isVideoRecording:
+                    # start recording
+                    self.isVideoRecording = True
+                    btn.setText("Stop")
+                    btn.setStyleSheet("color: red")
+                    self.vid_th = VideoThread(self.device_index, self.fps, self.wnd.vid_counter)
+                    self.vid_th.vid_signal.connect(self.wnd.add_tab)
+                    self.vid_th.start()
+                else:
+                    self.isVideoRecording = False
+                    self.vid_th.running = False
+                    self.vid_th.wait()
+                    btn.setText("Video")
+                    btn.setStyleSheet("")
 
