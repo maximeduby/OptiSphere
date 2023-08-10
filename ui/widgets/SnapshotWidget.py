@@ -1,4 +1,5 @@
 from PySide6.QtCore import Qt, Slot
+from PySide6.QtGui import QFont
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QHBoxLayout, QPushButton
 
 from ui.dialogs.EditNameDialog import EditNameDialog
@@ -14,6 +15,8 @@ class SnapshotWidget(QWidget):
         layout = QVBoxLayout()
 
         section_header = QLabel("Snapshot")
+        section_header.setAlignment(Qt.Alignment.AlignCenter)
+        section_header.setFont(QFont('Arial', 20))
         h_layout = QHBoxLayout()
         name_legend = QLabel("Name:")
         self.name_text = QLabel(self.snapshot.title)

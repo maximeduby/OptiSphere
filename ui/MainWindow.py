@@ -1,11 +1,18 @@
+import glob
+import sys
+
+import serial
+
 from PySide6.QtGui import QScreen, QAction, QActionGroup
 from PySide6.QtCore import Slot
 from PySide6.QtMultimedia import QMediaDevices
 from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QTabWidget, QMessageBox, QHBoxLayout, QVBoxLayout
 
+from configuration import BAUD_RATE
 from ui.SidebarLayout import SidebarLayout
 from ui.tabs.CameraTab import CameraTab
 from ui.tabs.SnapshotTab import SnapshotTab
+from ui.tabs.TimelapseTab import TimelapseTab
 from ui.tabs.VideoTab import VideoTab
 
 
@@ -24,6 +31,16 @@ class MainWindow(QMainWindow):
         self.ss_counter = 1
         self.vid_counter = 1
         self.tl_counter = 1
+
+        # serial connection
+        self.ser = serial.Serial(
+            port=self.select_port(),
+            baudrate=BAUD_RATE,
+            parity=serial.PARITY_NONE,
+            stopbits=serial.STOPBITS_ONE,
+            bytesize=serial.EIGHTBITS,
+            timeout=1
+        )
 
         # tabs widget
         self.tabs = QTabWidget()
@@ -106,12 +123,39 @@ class MainWindow(QMainWindow):
                 self.tabs.setCurrentWidget(snapshot_tab)
                 self.ss_counter += 1
             case "VideoThread":
-                # video_tab = VideoTab(thread.path, f"video_{self.vid_counter}")
                 video_tab = VideoTab(thread.recorded_frames, f"video_{self.vid_counter}")
                 video_tab.set_video()
                 self.tabs.addTab(video_tab, video_tab.title)
                 self.tabs.setCurrentWidget(video_tab)
                 self.vid_counter += 1
+            case "TimelapseThread":
+                timelapse_tab = TimelapseTab(thread.recorded_frames, f"timelapse_{self.tl_counter}")
+                timelapse_tab.set_video()
+                self.tabs.addTab(timelapse_tab, timelapse_tab.title)
+                self.tabs.setCurrentWidget(timelapse_tab)
+                self.tl_counter += 1
+
     def open_file(self):
         pass
 
+    def select_port(self):
+        if sys.platform.startswith('win'):
+            ports = ['COM%s' % (i + 1) for i in range(256)]
+        elif sys.platform.startswith('linux') or sys.platform.startswith('cygwin'):
+            ports = glob.glob('/dev/tty[A-Za-z]*')
+        elif sys.platform.startswith('darwin'):
+            ports = glob.glob('/dev/tty.usb*')
+        else:
+            raise EnvironmentError('Unsupported platform')
+
+        result = []
+        for port in ports:
+            try:
+                s = serial.Serial(port)
+                s.close()
+                result.append(port)
+            except (OSError, serial.SerialException):
+                pass
+        if result:
+            result = result[0]
+        return result
