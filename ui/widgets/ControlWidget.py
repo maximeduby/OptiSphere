@@ -1,14 +1,15 @@
 from PySide6.QtCore import Qt, Slot
-from PySide6.QtGui import QFont
+from PySide6.QtGui import QFont, QFontMetricsF
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QHBoxLayout, QPushButton, QLineEdit, QTextEdit
 from serial import SerialException
+from unidecode import unidecode
 
 
 class ControlWidget(QWidget):
     def __init__(self, wnd):
         super().__init__()
         self.wnd = wnd
-        self.mode = "ROLL"
+        self.mode = "r"
 
         layout = QVBoxLayout()
         section_header = QLabel("Control")
@@ -36,9 +37,13 @@ class ControlWidget(QWidget):
         self.input_box.returnPressed.connect(lambda: self.send_command(self.input_box.text()))
         self.console = QTextEdit()
         self.console.setReadOnly(True)
+        self.console.setTabStopDistance(20)
+        clear_btn = QPushButton("Clear")
+        clear_btn.clicked.connect(self.console.clear)
 
-        serial_layout.addWidget(self.input_box)
         serial_layout.addWidget(self.console)
+        serial_layout.addWidget(self.input_box)
+        serial_layout.addWidget(clear_btn)
 
         layout.addWidget(section_header)
         layout.addLayout(h_layout)
@@ -51,10 +56,10 @@ class ControlWidget(QWidget):
         match axis:
             case "Roll":
                 self.roll_btn.setEnabled(False)
-                if self.mode != "ROLL":
+                if self.mode != "r":
                     try:
                         self.wnd.ser.write(b'%s-CW\n' % bytes(self.mode, "utf-8"))
-                        self.mode = "ROLL"
+                        self.mode = "r"
                         self.wnd.ser.write(b'ROLL-CCW\n')
                     except SerialException:
                         print("Error: Could not write to serial port")
@@ -64,10 +69,10 @@ class ControlWidget(QWidget):
 
             case "Pitch":
                 self.pitch_btn.setEnabled(False)
-                if self.mode != "PITCH":
+                if self.mode != "p":
                     try:
                         self.wnd.ser.write(b'%s-CW\n' % bytes(self.mode, "ascii"))
-                        self.mode = "PITCH"
+                        self.mode = "p"
                         self.wnd.ser.write(b'PITCH-CCW\n')
                     except SerialException:
                         print("Error: Could not write to serial port")
@@ -81,10 +86,12 @@ class ControlWidget(QWidget):
     @Slot()
     def send_command(self, command):
         self.input_box.clear()
+        command = unidecode(command)
+        # self.wnd.ser.write(b'%s\n' % command)
         self.wnd.ser.write(b'%s\n' % bytes(command, "ascii"))
         try:
             data = self.wnd.ser.read_until("\n").decode('ascii').strip()
-            self.console.append(data)
+            self.console.append(data.strip("\n"))
             print(data)
         except SerialException:
             print("Error with serial connection")

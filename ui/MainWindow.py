@@ -123,7 +123,7 @@ class MainWindow(QMainWindow):
                 self.tabs.setCurrentWidget(snapshot_tab)
                 self.ss_counter += 1
             case "VideoThread":
-                video_tab = VideoTab(thread.recorded_frames, f"video_{self.vid_counter}")
+                video_tab = VideoTab(thread.recorded_frames, f"video_{self.vid_counter}", thread.fps)
                 video_tab.set_video()
                 self.tabs.addTab(video_tab, video_tab.title)
                 self.tabs.setCurrentWidget(video_tab)

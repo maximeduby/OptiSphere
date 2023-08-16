@@ -84,6 +84,7 @@ class CaptureWidget(QWidget):
                 if not self.isVideoRecording:
                     # start recording
                     self.isVideoRecording = True
+                    self.wnd.cam_tab.camera.setStyleSheet("border: 1px solid red; padding:0")
                     btn.setText("Stop")
                     btn.setStyleSheet("color: red")
                     self.vid_th = VideoThread(self.device_index, self.fps, self.wnd.vid_counter)
@@ -93,6 +94,7 @@ class CaptureWidget(QWidget):
                     self.isVideoRecording = False
                     self.vid_th.running = False
                     self.vid_th.wait()
+                    self.wnd.cam_tab.camera.setStyleSheet("")
                     btn.setText("Video")
                     btn.setStyleSheet("")
             case "Timelapse":

@@ -6,11 +6,11 @@ from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QSizePolicy, QPushBu
 
 class VideoTab(QWidget):
 
-    def __init__(self, recorded_frames, title):
+    def __init__(self, recorded_frames, title, fps):
         super().__init__()
         self.frames = recorded_frames
         self.title = title
-        self.fps = 30
+        self.fps = fps
         self.current_frame = 0
         self.vid_running = False
 
