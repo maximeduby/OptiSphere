@@ -1,0 +1,43 @@
+QLabel#header {
+    font-size: 20px;
+    font-family: Arial;
+}
+
+QPushButton#video_control_btn{
+    background: blue;
+}
+
+QMainWindow, QTabWidget::pane{
+    background: #151515;
+    
+}
+
+QTabBar::tab{
+    background: black;
+    padding: 10px;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    font-size: 16px;
+}
+
+QTabBar::tab:selected{
+    background: #1F1F1F;
+    border-bottom: 4px solid #105BF6;
+}
+
+QTabWidget::pane{
+    background-color: transparent;
+    border: none;
+}
+
+QTabWidget::tab-bar{
+    left: 0;
+}
+
+QTabBar{
+    background: #151515;
+}
+
+QGraphicsView{
+    background: #151515;
+}
