@@ -2,6 +2,7 @@ import sys
 import glob
 
 import serial
+from PySide6.QtCore import Qt
 
 from PySide6.QtGui import QScreen, QActionGroup, QAction
 from PySide6.QtMultimedia import QMediaDevices
@@ -41,6 +42,7 @@ class MainWindow(QMainWindow):
         self.tabs.setTabsClosable(True)
         self.tabs.tabCloseRequested.connect(self.close_tab)
         self.tabs.tabBar().setTabButton(0, QTabBar.ButtonPosition.LeftSide, None)
+        self.tabs.tabBar().setUsesScrollButtons(True)
 
         # main layout
         main_layout = QHBoxLayout()

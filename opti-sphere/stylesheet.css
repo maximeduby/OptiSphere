@@ -1,6 +1,12 @@
+QMainWindow{
+    min-width: 1280;
+    min-height: 720;
+}
 QLabel#header {
-    font-size: 20px;
+    font-size: 30px;
+    font-weight: bold;
     font-family: Arial;
+    margin-bottom: 5px;
 }
 
 QPushButton#video_control_btn{
@@ -8,7 +14,7 @@ QPushButton#video_control_btn{
 }
 
 QMainWindow, QTabWidget::pane{
-    background: #151515;
+    background: #151415;
     
 }
 
@@ -18,11 +24,14 @@ QTabBar::tab{
     border-top-left-radius: 5px;
     border-top-right-radius: 5px;
     font-size: 16px;
+    min-width: 100px;
+    color: #CCCCCC
 }
 
 QTabBar::tab:selected{
-    background: #1F1F1F;
+    background: #201F20;
     border-bottom: 4px solid #105BF6;
+    color: white;
 }
 
 QTabWidget::pane{
@@ -35,9 +44,49 @@ QTabWidget::tab-bar{
 }
 
 QTabBar{
-    background: #151515;
+    background: #151415;
 }
 
 QGraphicsView{
-    background: #151515;
+    background: #151415;
+}
+
+CaptureWidget#widget-container{
+    background-color: #201F20; 
+    border-radius: 15px;
+}
+
+IconButton{
+    background: #3E3E3E;
+    border-radius: 15px;
+    padding: 15px;
+    qproperty-iconSize: 30px;
+    border: 2px solid #CCCCCC
+}
+
+IconButton:hover{
+    background: #4e4e4e;
+}
+
+IconButton:pressed{
+    background: #5E5E5E;
+}
+
+QLabel#btn-legend{
+    font-size: 12px;
+    color: #CCCCCC;
+    font-weight: 300;
+}
+
+QTabWidget#control-tabs::pane{
+    background-color: #201F20;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+QTabWidget#control-tabs QTabBar::tab{
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    left: 0;
+    right: 0;
 }

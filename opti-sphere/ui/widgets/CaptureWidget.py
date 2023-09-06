@@ -4,6 +4,7 @@ from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QHBoxLayout, QPushBu
 from core.threads.SnapshotThread import SnapshotThread
 from core.threads.TimelapseThread import TimelapseThread
 from core.threads.VideoThread import VideoThread
+from ui.buttons.IconButton import IconButton
 from ui.dialogs.EditTimelapseDialog import EditTimelapseDialog
 from ui.tabs.SnapshotTab import SnapshotTab
 from ui.tabs.TimelapseTab import TimelapseTab
@@ -13,6 +14,8 @@ from ui.tabs.VideoTab import VideoTab
 class CaptureWidget(QWidget):
     def __init__(self, wnd):
         super().__init__()
+        self.setObjectName('widget-container')
+        self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground)
         self.wnd = wnd
 
         self.ss_counter, self.vid_counter, self.tl_counter = 1, 1, 1
@@ -21,25 +24,58 @@ class CaptureWidget(QWidget):
         self.tl_delta_time = 1
 
         layout = QVBoxLayout()
+        layout.setContentsMargins(15, 15, 15, 15)
 
         # header
         header = QLabel(text='Capture', objectName="header")
-        header.setAlignment(Qt.Alignment.AlignCenter)
+        header.setAlignment(Qt.Alignment.AlignLeft)
 
         # capture buttons
         h_layout = QHBoxLayout()
-        self.ss_btn = QPushButton(text="Snapshot", objectName="ss")
-        self.vid_btn = QPushButton(text='Video', objectName="start_vid")
-        self.tl_btn = QPushButton(text='Timelapse', objectName="start_tl")
-        self.edit_tl_btn = QPushButton(text="edit", objectName='edit_btn')
+        h_layout.setSpacing(20)
+
+        self.ss_btn = IconButton("resources/icons/snapshot-icon.svg")
+        self.ss_btn.setObjectName("ss")
+        self.ss_btn.set_icon_color("#CCCCCC")
+        self.vid_btn = IconButton("resources/icons/video-icon.svg")
+        self.vid_btn.setObjectName("start_vid")
+        self.vid_btn.set_icon_color("#CCCCCC")
+        self.tl_btn = IconButton("resources/icons/timelapse-icon.svg")
+        self.tl_btn.setObjectName("start_tl")
+        self.tl_btn.set_icon_color("#CCCCCC")
 
         self.ss_btn.clicked.connect(self.capture_ss)
         self.vid_btn.clicked.connect(self.capture_vid)
         self.tl_btn.clicked.connect(self.capture_tl)
 
-        h_layout.addWidget(self.ss_btn)
-        h_layout.addWidget(self.vid_btn)
-        h_layout.addWidget(self.tl_btn)
+        ss_layout = QVBoxLayout()
+        ss_layout.setSpacing(3)
+        vid_layout = QVBoxLayout()
+        vid_layout.setSpacing(3)
+        tl_layout = QVBoxLayout()
+        tl_layout.setSpacing(3)
+
+        ss_legend = QLabel(text="Snapshot", objectName="btn-legend")
+        ss_legend.setAlignment(Qt.Alignment.AlignCenter)
+        vid_legend = QLabel(text="Video", objectName="btn-legend")
+        vid_legend.setAlignment(Qt.Alignment.AlignCenter)
+        tl_legend = QLabel(text="Timelapse", objectName="btn-legend")
+        tl_legend.setAlignment(Qt.Alignment.AlignCenter)
+
+        ss_layout.addWidget(self.ss_btn)
+        ss_layout.addWidget(ss_legend)
+        vid_layout.addWidget(self.vid_btn)
+        vid_layout.addWidget(vid_legend)
+        tl_layout.addWidget(self.tl_btn)
+        tl_layout.addWidget(tl_legend)
+
+        h_layout.addStretch(1)
+        h_layout.addLayout(ss_layout)
+        h_layout.addStretch(1)
+        h_layout.addLayout(vid_layout)
+        h_layout.addStretch(1)
+        h_layout.addLayout(tl_layout)
+        h_layout.addStretch(1)
 
         layout.addWidget(header)
         layout.addLayout(h_layout)

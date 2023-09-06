@@ -8,7 +8,8 @@ class Tab(QWidget):
         self.scene_layout = QVBoxLayout()
         self.sidebar_layout = QVBoxLayout()
         self.scene_layout.setContentsMargins(5, 5, 5, 5)
-        self.sidebar_layout.setContentsMargins(0, 0, 0, 0)
+        self.sidebar_layout.setContentsMargins(5, 5, 5, 5)
+        self.sidebar_layout.setSpacing(30)
 
         layout = QHBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
