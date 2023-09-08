@@ -1,5 +1,5 @@
 from PySide6.QtCore import Qt, Slot, QTimer
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QHBoxLayout, QPushButton, QDialog
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QHBoxLayout, QDialog
 
 from core.threads.SnapshotThread import SnapshotThread
 from core.threads.TimelapseThread import TimelapseThread
@@ -28,7 +28,7 @@ class CaptureWidget(QWidget):
 
         # header
         header = QLabel(text='Capture', objectName="header")
-        header.setAlignment(Qt.Alignment.AlignLeft)
+        header.setAlignment(Qt.Alignment.AlignCenter)
 
         # capture buttons
         h_layout = QHBoxLayout()
@@ -38,10 +38,10 @@ class CaptureWidget(QWidget):
         self.ss_btn.setObjectName("ss")
         self.ss_btn.set_icon_color("#CCCCCC")
         self.vid_btn = IconButton("resources/icons/video-icon.svg")
-        self.vid_btn.setObjectName("start_vid")
+        self.vid_btn.setObjectName("start")
         self.vid_btn.set_icon_color("#CCCCCC")
         self.tl_btn = IconButton("resources/icons/timelapse-icon.svg")
-        self.tl_btn.setObjectName("start_tl")
+        self.tl_btn.setObjectName("start")
         self.tl_btn.set_icon_color("#CCCCCC")
 
         self.ss_btn.clicked.connect(self.capture_ss)
@@ -94,9 +94,10 @@ class CaptureWidget(QWidget):
     @Slot()
     def capture_vid(self):
         self.vid_btn.setEnabled(False)
-        if self.vid_btn.objectName() == "start_vid":
-            self.vid_btn.setObjectName("stop_vid")
-            self.vid_btn.setText("Stop")
+        if self.vid_btn.objectName() == "start":
+            self.vid_btn.setObjectName("stop")
+            self.vid_btn.set_icon_color("#f61027")
+            self.vid_btn.setStyleSheet('border-color: #f61027;')
             self.vid_btn.setEnabled(True)
             self.vid_th = VideoThread(self.wnd.main_tab.th)
             self.vid_th.vid_signal.connect(self.add_vid_tab)
@@ -104,21 +105,23 @@ class CaptureWidget(QWidget):
         else:
             self.vid_th.running = False
             self.vid_th.wait()
-            self.vid_btn.setObjectName("start_vid")
-            self.vid_btn.setText("Video")
+            self.vid_btn.setObjectName("start")
+            self.vid_btn.set_icon_color("#CCCCCC")
+            self.vid_btn.setStyleSheet('border-color: #CCCCCC;')
             self.vid_btn.setEnabled(True)
 
     @Slot()
     def capture_tl(self):
         self.tl_btn.setEnabled(False)
-        if self.tl_btn.objectName() == "start_tl":
+        if self.tl_btn.objectName() == "start":
             dialog = EditTimelapseDialog(self.tl_duration, self.tl_delta_time)
             result = dialog.exec()
             if result == QDialog.DialogCode.Accepted:
                 self.tl_duration = dialog.get_duration()
                 self.tl_delta_time = dialog.get_delta_time()
-                self.tl_btn.setObjectName("stop_tl")
-                self.tl_btn.setText("Stop")
+                self.tl_btn.setObjectName("stop")
+                self.tl_btn.set_icon_color("#f61027")
+                self.tl_btn.setStyleSheet('border-color: #f61027;')
                 self.tl_th = TimelapseThread(self.wnd.main_tab.th, self.tl_delta_time)
                 self.tl_th.tl_signal.connect(self.add_tl_tab)
                 self.tl_cooldown = QTimer(self)
@@ -130,8 +133,9 @@ class CaptureWidget(QWidget):
             self.tl_cooldown.stop()
             self.tl_th.running = False
             self.tl_th.wait()
-            self.tl_btn.setObjectName("start_tl")
-            self.tl_btn.setText("Timelapse")
+            self.tl_btn.setObjectName("start")
+            self.tl_btn.set_icon_color("#CCCCCC")
+            self.tl_btn.setStyleSheet('border-color: #CCCCCC;')
             self.tl_btn.setEnabled(True)
 
     @Slot()

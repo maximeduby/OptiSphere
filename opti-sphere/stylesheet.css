@@ -13,7 +13,7 @@ QPushButton#video_control_btn{
     background: blue;
 }
 
-QMainWindow, QTabWidget::pane{
+QMainWindow, QTabWidget::pane, QDialog{
     background: #151415;
     
 }
@@ -53,12 +53,12 @@ QGraphicsView{
 
 CaptureWidget#widget-container{
     background-color: #201F20; 
-    border-radius: 15px;
+    border-radius: 10px;
 }
 
 IconButton{
     background: #3E3E3E;
-    border-radius: 15px;
+    border-radius: 10px;
     padding: 15px;
     qproperty-iconSize: 30px;
     border: 2px solid #CCCCCC
@@ -87,6 +87,85 @@ QTabWidget#control-tabs::pane{
 QTabWidget#control-tabs QTabBar::tab{
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
-    left: 0;
-    right: 0;
 }
+
+QTabWidget#control-tabs::tab-bar{
+    min-width: 10000;
+}
+
+QLabel#legend{
+    color: #CCCCCC;
+    font-weight: 300;
+}
+
+QSlider::groove:horizontal {
+    border: 1px solid red;
+    height: 2px; 
+    border-radius: 5px;
+}
+QSlider::handle:horizontal {
+    background: #105BF6;
+    width: 10px;
+    margin: -5px -1px;
+    border-radius: 5px;
+    border: 1px solid #105BF6
+
+}
+
+QSlider::add-page:horizontal{
+    background: #151415
+}
+
+QSlider::sub-page:horizontal{
+    background: #105BF6;
+}
+
+QSlider::handle:horizontal:hover{
+    background: #1261ff;
+    border-color: #1261ff;
+}
+
+QPushButton#apply-rot-btn{
+    height: 28px;
+    background: #3E3E3E;
+    border-radius: 10px;
+    color: #CCCCCC;
+}
+
+QPushButton#apply-rot-btn:hover{
+    height: 28px;
+    background: #4e4e4e;
+    color: #CCCCCC;
+}
+
+QPushButton#apply-rot-btn:disabled{
+    height: 28px;
+    background: hsl(0, 0%, 18%);
+    border-radius: 10px;
+    color: hsl(0, 0%, 50%);
+}
+
+QSpinBox{
+    border: 1px solid #5E5E5E;
+    border-radius: 5px;
+    background: #151415;
+    color: #CCCCCC;
+    padding: 5px;
+}
+
+QSpinBox::up-button, QSpinBox::down-button{
+    width: 15px;
+    height: 15px;
+    color: #105BF6;
+}
+
+QSpingBox::up-arrow{
+    width: 12px;
+    height: 12px;
+    image: url("resources/icons/caret-up-icon.svg")
+}
+QSpingBox::down-arrow{
+    width: 12px;
+    height: 12px;
+    image: url("resources/icons/caret-down-icon.svg")
+} 

@@ -9,6 +9,7 @@ from PySide6.QtMultimedia import QMediaDevices
 from PySide6.QtWidgets import QMainWindow, QApplication, QWidget, QHBoxLayout, QTabWidget, QTabBar, QMessageBox
 
 from config import WINDOW_WIDTH, WINDOW_HEIGHT, BAUD_RATE
+from core.models.Sphere import Sphere
 from ui.widgets.SerialTool import SerialTool
 from ui.tabs.MainTab import MainTab
 
@@ -64,6 +65,7 @@ class MainWindow(QMainWindow):
 
         # variables
         self.fps = 30
+        self.sphere = Sphere()
 
     def available_port(self):
         if sys.platform.startswith('win'):

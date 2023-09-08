@@ -1,5 +1,5 @@
 from PySide6.QtCore import Slot
-from PySide6.QtWidgets import QTabWidget
+from PySide6.QtWidgets import QTabWidget, QFrame
 
 from core.threads.CameraThread import CameraThread
 from ui.tabs.RotationTab import RotationTab
@@ -17,12 +17,10 @@ class MainTab(Tab):
         self.camera_feed = ImageViewer()
         self.capture = CaptureWidget(self.wnd)
         self.control = QTabWidget(objectName="control-tabs")
-        self.rotation = RotationTab()
-        self.tracking = TrackingTab()
-        self.scanning = ScanningTab()
+        self.rotation = RotationTab(self.wnd)
+        self.tracking = TrackingTab(self.wnd)
+        self.scanning = ScanningTab(self.wnd)
 
-        self.control.tabBar().setDocumentMode(True)
-        self.control.tabBar().setExpanding(True)
         self.control.addTab(self.rotation, "Rotation")
         self.control.addTab(self.tracking, "Tracking")
         self.control.addTab(self.scanning, "Scanning")
