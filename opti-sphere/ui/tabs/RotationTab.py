@@ -112,9 +112,10 @@ class RotationTab(QWidget):
     @Slot()
     def apply_rot(self):
         rot = (
-            self.rotation_render.roll_angle,
-            self.rotation_render.pitch_angle,
-            self.rotation_render.yaw_angle
+            self.roll_spinbox.value(),
+            self.pitch_spinbox.value(),
+            self.yaw_spinbox.value()
         )
+        self.wnd.ser.send_instruction(*rot)
         self.wnd.sphere.set_rotation(rot)
         self.apply_rot_btn.setEnabled(False)

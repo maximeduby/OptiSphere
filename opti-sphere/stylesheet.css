@@ -159,7 +159,7 @@ QSpinBox::up-button, QSpinBox::down-button{
     color: #105BF6;
 }
 
-QSpingBox::up-arrow{
+/* QSpingBox::up-arrow{
     width: 12px;
     height: 12px;
     image: url("resources/icons/caret-up-icon.svg")
@@ -168,4 +168,4 @@ QSpingBox::down-arrow{
     width: 12px;
     height: 12px;
     image: url("resources/icons/caret-down-icon.svg")
-} 
+} */

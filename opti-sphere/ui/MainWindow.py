@@ -1,16 +1,14 @@
-import sys
-import glob
-
 import serial
-from PySide6.QtCore import Qt
 
 from PySide6.QtGui import QScreen, QActionGroup, QAction
 from PySide6.QtMultimedia import QMediaDevices
-from PySide6.QtWidgets import QMainWindow, QApplication, QWidget, QHBoxLayout, QTabWidget, QTabBar, QMessageBox
+from PySide6.QtWidgets import QMainWindow, QApplication, QWidget, QHBoxLayout, QTabWidget, QTabBar, QMessageBox, QMenu, \
+    QInputDialog
 
 from config import WINDOW_WIDTH, WINDOW_HEIGHT, BAUD_RATE
+from core.models.SerialCom import SerialCom
 from core.models.Sphere import Sphere
-from ui.widgets.SerialTool import SerialTool
+from ui.widgets.SerialDebugger import SerialDebugger
 from ui.tabs.MainTab import MainTab
 
 
@@ -24,16 +22,6 @@ class MainWindow(QMainWindow):
         geometry = self.frameGeometry()
         geometry.moveCenter(QScreen.availableGeometry(QApplication.primaryScreen()).center())
         self.move(geometry.topLeft())
-
-        # serial connection
-        self.ser = serial.Serial(
-            port=self.available_port()[0],
-            baudrate=BAUD_RATE,
-            parity=serial.PARITY_NONE,
-            stopbits=serial.STOPBITS_ONE,
-            bytesize=serial.EIGHTBITS,
-            timeout=1
-        )
 
         # tabs
         self.tabs = QTabWidget()
@@ -63,29 +51,13 @@ class MainWindow(QMainWindow):
 
         self.show()
 
+        # serial connection
+        self.ser = SerialCom()
+        self.setup_serial_connection()
+
         # variables
         self.fps = 30
         self.sphere = Sphere()
-
-    def available_port(self):
-        if sys.platform.startswith('win'):
-            ports = ['COM%s' % (i + 1) for i in range(256)]
-        elif sys.platform.startswith('linux') or sys.platform.startswith('cygwin'):
-            ports = glob.glob('/dev/tty[A-Za-z]*')
-        elif sys.platform.startswith('darwin'):
-            ports = glob.glob('/dev/tty.usb*')
-        else:
-            raise EnvironmentError('Unsupported platform')
-
-        result = []
-        for port in ports:
-            try:
-                s = serial.Serial(port)
-                s.close()
-                result.append(port)
-            except (OSError, serial.SerialException):
-                pass
-        return result
 
     def close_tab(self, index):
         if index != 0:
@@ -107,6 +79,7 @@ class MainWindow(QMainWindow):
         if confirm == QMessageBox.StandardButton.Close:
             for window in QApplication.topLevelWidgets():
                 window.close()
+            self.ser.th.stop()
             self.main_tab.th.stop()
             event.accept()
         else:
@@ -126,7 +99,10 @@ class MainWindow(QMainWindow):
         self.cam_devices_group.actions()[0].setChecked(True)
 
         # tools menu
-        self.tools_menu.addAction('Serial Communication', lambda: self.open_serial_tool())
+        serial_tool = QMenu("Serial Communication")
+        serial_tool.addAction('Connect to serial', self.open_serial_setup)
+        serial_tool.addAction('Serial Debugger', self.open_serial_debugger)
+        self.tools_menu.addMenu(serial_tool)
 
     def update_camera_menu(self):
         for action in self.cam_devices_group.actions():
@@ -153,7 +129,36 @@ class MainWindow(QMainWindow):
     def open_file(self):
         pass
 
-    def open_serial_tool(self):
+    def open_serial_debugger(self):
         self.tools_menu.actions()[0].setEnabled(False)
-        dialog = SerialTool(self)
+        dialog = SerialDebugger(self)
         dialog.show()
+
+    def open_serial_setup(self):
+        ports = ['--None--'] + self.ser.available_port() + ["/dev/tty.wlan"]
+        port, ok = QInputDialog().getItem(self, "Select Port", "Port:", ports, -1, False)
+        if ok and port:
+            if port == "--None--":
+                print("Port chosen: None")
+            else:
+                print(f"Port chosen: {port}")
+                self.setup_serial_connection(port)
+
+    def setup_serial_connection(self, port=None):
+        if not port:
+            ports = self.ser.available_port()
+            if ports:
+                port = ports[0]
+            else:
+                port = None
+        if port:
+            try:
+                self.ser = SerialCom(port)
+            except serial.SerialException:
+                self.raise_()
+                print(f"Error: Failed to communicate with {port}")
+                QMessageBox(self).critical(self, "Error", f"Failed to communicate with '{port}'")
+        else:
+            self.raise_()
+            print("Error: Could not find any device for serial communication")
+            QMessageBox(self).critical(self, "Error", f"Could not find any device for serial communication")

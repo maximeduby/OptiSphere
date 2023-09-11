@@ -18,6 +18,7 @@ class ImageViewer(QGraphicsView):
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setFrameShape(QFrame.Shape.NoFrame)
+        self.viewport().setAttribute(Qt.WidgetAttribute.WA_AcceptTouchEvents, False)
 
     def wheelEvent(self, event: QWheelEvent):
         zoom_factor = event.angleDelta().y() / 1800
