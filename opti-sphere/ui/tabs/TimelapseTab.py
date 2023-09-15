@@ -1,6 +1,7 @@
 import cv2
 from PySide6.QtCore import Qt, QTimer, Slot
-from PySide6.QtWidgets import QPushButton, QLabel, QSlider, QHBoxLayout, QFileDialog
+from PySide6.QtGui import QIcon
+from PySide6.QtWidgets import QPushButton, QLabel, QSlider, QHBoxLayout, QFileDialog, QWidget
 
 from ui.tabs.Tab import Tab
 from ui.widgets.ImageViewer import ImageViewer
@@ -10,6 +11,7 @@ from ui.widgets.TimelapseWidget import TimelapseWidget
 class TimelapseTab(Tab):
     def __init__(self, frames, title):
         super().__init__()
+        self.layout().setAlignment(Qt.Alignment.AlignCenter)
         self.frames = frames
         self.title = title
 
@@ -20,21 +22,24 @@ class TimelapseTab(Tab):
         self.timelapse = ImageViewer()
         self.timelapse.set_image(self.frames[self.current_frame])
 
+        timelapse_player = QWidget(objectName="widget-container")
         timelapse_control = QHBoxLayout()
-        self.play_btn = QPushButton(text="Play", objectName='video_control_btn')
+        self.play_btn = QPushButton(objectName='video_control_btn')
+        self.play_btn.setIcon(QIcon("resources/icons/play-icon.svg"))
         self.play_btn.clicked.connect(self.toggle_play_pause)
-        self.timestamp = QLabel(objectName='timestamp')
+        self.timestamp = QLabel(text="00:00", objectName='timestamp')
         self.slider = QSlider(Qt.Orientation.Horizontal)
         self.slider.valueChanged.connect(self.set_frame)
         self.slider.setRange(0, len(self.frames)-1)
         timelapse_control.addWidget(self.play_btn)
         timelapse_control.addWidget(self.timestamp)
         timelapse_control.addWidget(self.slider)
+        timelapse_player.setLayout(timelapse_control)
 
         self.tl_widget = TimelapseWidget(self)
 
         self.scene_layout.addWidget(self.timelapse)
-        self.scene_layout.addLayout(timelapse_control)
+        self.scene_layout.addWidget(timelapse_player)
         self.sidebar_layout.addWidget(self.tl_widget)
 
         self.timer = QTimer(self)
@@ -46,15 +51,14 @@ class TimelapseTab(Tab):
     def toggle_play_pause(self):
         if self.is_running:
             self.is_running = False
-            self.play_btn.setText("Play")
+            self.play_btn.setIcon(QIcon("resources/icons/play-icon.svg"))
         else:
             self.is_running = True
-            self.play_btn.setText("Pause")
+            self.play_btn.setIcon(QIcon("resources/icons/pause-icon.svg"))
             if self.current_frame >= len(self.frames) - 1:
                 self.current_frame = 0
             if not self.timer.isActive():
                 self.timer.setInterval(1000 / self.fps)
-                print(self.timer.interval())
                 self.timer.start()
                 self.update_timelapse()
 
@@ -62,6 +66,7 @@ class TimelapseTab(Tab):
     def update_timelapse(self):
         if self.is_running:
             if self.current_frame < len(self.frames):
+                self.timer.setInterval(1000 / self.fps)
                 self.timelapse.set_image(self.frames[self.current_frame])
                 self.slider.setSliderPosition(self.current_frame)
                 self.timestamp.setText(self.get_timestamp())
@@ -79,6 +84,7 @@ class TimelapseTab(Tab):
     def set_frame(self, value):
         self.current_frame = value
         self.timelapse.set_image(self.frames[self.current_frame])
+        self.timestamp.setText(self.get_timestamp())
         self.slider.setSliderPosition(self.current_frame)
 
     def get_dimensions(self):

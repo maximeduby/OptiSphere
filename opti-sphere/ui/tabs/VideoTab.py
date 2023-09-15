@@ -1,7 +1,7 @@
 import cv2
-from PySide6.QtCore import QTimer, Slot
-from PySide6.QtGui import Qt
-from PySide6.QtWidgets import QHBoxLayout, QPushButton, QLabel, QSlider, QFileDialog
+from PySide6.QtCore import QTimer, Slot, Qt
+from PySide6.QtGui import QIcon
+from PySide6.QtWidgets import QHBoxLayout, QPushButton, QLabel, QSlider, QFileDialog, QWidget
 
 from ui.tabs.Tab import Tab
 from ui.widgets.ImageViewer import ImageViewer
@@ -11,6 +11,7 @@ from ui.widgets.VideoWidget import VideoWidget
 class VideoTab(Tab):
     def __init__(self, frames, title, fps):
         super().__init__()
+        self.layout().setAlignment(Qt.Alignment.AlignCenter)
         self.frames = frames
         self.title = title
         self.fps = fps
@@ -21,21 +22,24 @@ class VideoTab(Tab):
         self.video = ImageViewer()
         self.video.set_image(self.frames[self.current_frame])
 
+        video_player = QWidget(objectName="widget-container")
         video_control = QHBoxLayout()
-        self.play_btn = QPushButton(text="Play", objectName='video_control_btn')
+        self.play_btn = QPushButton(objectName='video_control_btn')
+        self.play_btn.setIcon(QIcon("resources/icons/play-icon.svg"))
         self.play_btn.clicked.connect(self.toggle_play_pause)
-        self.timestamp = QLabel(objectName='timestamp')
+        self.timestamp = QLabel(text="00:00", objectName='timestamp')
         self.slider = QSlider(Qt.Orientation.Horizontal)
         self.slider.valueChanged.connect(self.set_frame)
         self.slider.setRange(0, len(self.frames)-1)
         video_control.addWidget(self.play_btn)
         video_control.addWidget(self.timestamp)
         video_control.addWidget(self.slider)
+        video_player.setLayout(video_control)
 
         self.vid_widget = VideoWidget(self)
 
         self.scene_layout.addWidget(self.video)
-        self.scene_layout.addLayout(video_control)
+        self.scene_layout.addWidget(video_player)
         self.sidebar_layout.addWidget(self.vid_widget)
 
         self.timer = QTimer(self)
@@ -46,10 +50,10 @@ class VideoTab(Tab):
     def toggle_play_pause(self):
         if self.is_running:
             self.is_running = False
-            self.play_btn.setText("Play")
+            self.play_btn.setIcon(QIcon("resources/icons/play-icon.svg"))
         else:
             self.is_running = True
-            self.play_btn.setText("Pause")
+            self.play_btn.setIcon(QIcon("resources/icons/pause-icon.svg"))
             if self.current_frame >= len(self.frames):
                 self.current_frame = 0
             if not self.timer.isActive():
@@ -77,6 +81,8 @@ class VideoTab(Tab):
     def set_frame(self, value):
         self.current_frame = value
         self.video.set_image(self.frames[self.current_frame])
+        self.timestamp.setText(self.get_timestamp())
+        self.slider.setSliderPosition(self.current_frame)
 
     def get_dimensions(self):
         vid_height, vid_width, _ = self.frames[0].shape

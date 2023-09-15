@@ -1,13 +1,20 @@
-from PySide6.QtCore import Qt, Slot
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QHBoxLayout, QSpinBox
+from PySide6.QtCore import Qt, Slot, Signal
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QHBoxLayout, QSpinBox, QLineEdit
 
 
 class TimelapseWidget(QWidget):
+    update_signal = Signal(str)
+
     def __init__(self, timelapse):
         super().__init__()
+        self.setObjectName('widget-container')
+        self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground)
+
         self.timelapse = timelapse
 
         layout = QVBoxLayout()
+        layout.setSpacing(20)
+        layout.setContentsMargins(20, 15, 20, 15)
 
         # header
         header = QLabel(text='Timelapse', objectName="header")
@@ -15,28 +22,32 @@ class TimelapseWidget(QWidget):
 
         # timelapse name
         name_layout = QHBoxLayout()
-        name_legend = QLabel(text="Name:", objectName="legend")
-        self.name = QLabel(text=self.timelapse.title, objectName="name")
+        name_legend = QLabel(text="Name", objectName="legend")
+        self.name = QLineEdit(objectName="name")
+        self.name.setPlaceholderText("Enter the timelapse name")
+        self.name.setText(self.timelapse.title)
+        self.name.returnPressed.connect(lambda: self.save_name(self.name.text()))
         name_layout.addWidget(name_legend)
         name_layout.addWidget(self.name)
 
-        # timelapse dimensions
-        dim_layout = QHBoxLayout()
-        dim_legend = QLabel(text="Dimensions:", objectName="legend")
-        self.dimensions = QLabel(text=self.timelapse.get_dimensions(), objectName="property")
-        dim_layout.addWidget(dim_legend)
-        dim_layout.addWidget(self.dimensions)
-
-        # video duration
-        dur_layout = QHBoxLayout()
-        dur_legend = QLabel(text="Duration:", objectName="legend")
-        self.duration = QLabel(text=self.timelapse.get_duration(), objectName="property")
-        dur_layout.addWidget(dur_legend)
-        dur_layout.addWidget(self.duration)
+        # timelapse details
+        details_widget = QWidget(objectName="details")
+        details_widget.setAttribute(Qt.WidgetAttribute.WA_StyledBackground)
+        details_layout = QHBoxLayout()
+        details_layout.setAlignment(Qt.Alignment.AlignCenter)
+        details_layout.setSpacing(20)
+        details_layout.setContentsMargins(10, 3, 10, 3)
+        dimensions = QLabel(self.timelapse.get_dimensions())
+        nb_frames = QLabel(f"{len(self.timelapse.frames)} frames")
+        self.duration = QLabel(self.timelapse.get_duration())
+        details_layout.addWidget(dimensions)
+        details_layout.addWidget(nb_frames)
+        details_layout.addWidget(self.duration)
+        details_widget.setLayout(details_layout)
 
         # timelapse fps
         fps_layout = QHBoxLayout()
-        fps_legend = QLabel(text="FPS:", objectName="legend")
+        fps_legend = QLabel(text="FPS", objectName="legend")
         self.fps = QSpinBox()
         self.fps.valueChanged.connect(self.update_fps)
         self.fps.setValue(self.timelapse.fps)
@@ -44,12 +55,12 @@ class TimelapseWidget(QWidget):
         self.fps.setMaximum(1000)
         fps_layout.addWidget(fps_legend)
         fps_layout.addWidget(self.fps)
+        fps_layout.addStretch(1)
 
         layout.addWidget(header)
         layout.addLayout(name_layout)
-        layout.addLayout(dim_layout)
+        layout.addWidget(details_widget)
         layout.addLayout(fps_layout)
-        layout.addLayout(dur_layout)
         layout.setAlignment(Qt.AlignTop)
         self.setLayout(layout)
 
@@ -58,3 +69,8 @@ class TimelapseWidget(QWidget):
         self.timelapse.fps = value
         self.duration.setText(self.timelapse.get_duration())
         self.timelapse.timestamp.setText(self.timelapse.get_timestamp())
+
+    def save_name(self, new_name):
+        self.timelapse.title = new_name
+        self.update_signal.emit(new_name)
+        self.name.clearFocus()

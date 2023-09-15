@@ -26,4 +26,7 @@ class SnapshotTab(Tab):
             return
         cv2.imwrite(filename[0], self.frame)
 
-
+    def get_dimensions(self):
+        w = self.frame.shape[1]
+        h = self.frame.shape[0]
+        return f"{w} × {h}"

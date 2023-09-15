@@ -69,12 +69,11 @@ class SerialCom(serial.Serial):
         self.th.start()
 
     def handle_response(self, category, content):
-        self.print_signal_holder.print_signal.emit(category, content)
         if category == self.ALL_DONE:
             self.th.waiting = False
         elif category == self.RESPONSE:
             response = content.decode('utf-8')
-            print(response)
+            print("Response: ", response)
         elif category == self.ERROR:
             error = content.decode('utf-8')
             print("Error:", error)

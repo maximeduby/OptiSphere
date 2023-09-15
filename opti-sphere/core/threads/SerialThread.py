@@ -12,6 +12,8 @@ class SerialThread(QThread):
         self.waiting = True
 
     def run(self):
+        if not self.ser.isOpen():
+            return
         try:
             self.ser.write(self.packet)
         except SerialException:
@@ -27,6 +29,3 @@ class SerialThread(QThread):
             except SerialException:
                 print("Error with serial communication when reading")
 
-    def stop(self):
-        self.waiting = False
-        self.wait()

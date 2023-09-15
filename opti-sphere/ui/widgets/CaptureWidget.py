@@ -142,6 +142,7 @@ class CaptureWidget(QWidget):
     def add_ss_tab(self, frame):
         title = f"snapshot{self.ss_counter}"
         snapshot_tab = SnapshotTab(frame, title)
+        snapshot_tab.ss_widget.update_signal.connect(self.wnd.update_name)
         self.wnd.tabs.addTab(snapshot_tab, title)
         self.wnd.tabs.setCurrentWidget(snapshot_tab)
         self.ss_counter += 1
@@ -150,6 +151,7 @@ class CaptureWidget(QWidget):
     def add_vid_tab(self, frames):
         title = f"video{self.vid_counter}"
         video_tab = VideoTab(frames, title, self.wnd.fps)
+        video_tab.vid_widget.update_signal.connect(self.wnd.update_name)
         self.wnd.tabs.addTab(video_tab, title)
         self.wnd.tabs.setCurrentWidget(video_tab)
         self.vid_counter += 1
@@ -158,6 +160,7 @@ class CaptureWidget(QWidget):
     def add_tl_tab(self, frames):
         title = f"timelapse{self.tl_counter}"
         tl_tab = TimelapseTab(frames, title)
+        tl_tab.tl_widget.update_signal.connect(self.wnd.update_name)
         self.wnd.tabs.addTab(tl_tab, title)
         self.wnd.tabs.setCurrentWidget(tl_tab)
         self.tl_counter += 1

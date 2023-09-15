@@ -1,4 +1,5 @@
 import serial
+from PySide6.QtCore import Slot
 
 from PySide6.QtGui import QScreen, QActionGroup, QAction
 from PySide6.QtMultimedia import QMediaDevices
@@ -79,7 +80,6 @@ class MainWindow(QMainWindow):
         if confirm == QMessageBox.StandardButton.Close:
             for window in QApplication.topLevelWidgets():
                 window.close()
-            self.ser.th.stop()
             self.main_tab.th.stop()
             event.accept()
         else:
@@ -87,7 +87,6 @@ class MainWindow(QMainWindow):
 
     def init_menu_bar(self):
         # file menu
-        self.file_menu.addAction('Open', lambda: self.open_file())
         self.file_menu.addAction('Save', lambda: self.tabs.currentWidget().save())
         self.file_menu.addAction('Quit', QApplication.instance().quit())
         self.file_menu.actions()[1].setEnabled(False)
@@ -126,16 +125,18 @@ class MainWindow(QMainWindow):
         else:
             self.file_menu.actions()[1].setEnabled(True)
 
-    def open_file(self):
-        pass
+    @Slot()
+    def update_name(self, new_name):
+        self.tabs.setTabText(self.tabs.currentIndex(), new_name)
 
     def open_serial_debugger(self):
-        self.tools_menu.actions()[0].setEnabled(False)
-        dialog = SerialDebugger(self)
-        dialog.show()
+        if self.ser.isOpen():
+            self.tools_menu.actions()[0].setEnabled(False)
+            dialog = SerialDebugger(self)
+            dialog.show()
 
     def open_serial_setup(self):
-        ports = ['--None--'] + self.ser.available_port() + ["/dev/tty.wlan"]
+        ports = ['--None--'] + self.ser.available_port()
         port, ok = QInputDialog().getItem(self, "Select Port", "Port:", ports, -1, False)
         if ok and port:
             if port == "--None--":
