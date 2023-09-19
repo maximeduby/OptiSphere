@@ -33,6 +33,7 @@ class MainWindow(QMainWindow):
         self.tabs.tabCloseRequested.connect(self.close_tab)
         self.tabs.tabBar().setTabButton(0, QTabBar.ButtonPosition.LeftSide, None)
         self.tabs.tabBar().setUsesScrollButtons(True)
+        self.tabs.tabBar().setMovable(True)
 
         # main layout
         main_layout = QHBoxLayout()

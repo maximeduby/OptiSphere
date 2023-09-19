@@ -1,4 +1,4 @@
-import math
+import numpy as np
 
 from OpenGL.GL import *
 from OpenGL.GLU import gluPerspective
@@ -10,6 +10,7 @@ from pyquaternion import Quaternion
 
 class Rotation3DRender(QOpenGLWidget):
     update_rot = Signal(int, int, int)
+
     def __init__(self):
         super().__init__()
 
@@ -19,9 +20,10 @@ class Rotation3DRender(QOpenGLWidget):
 
         self.drag_x = 0
         self.drag_y = 0
-        self.is_dragging = False
 
-        self.quat = Quaternion()
+        self.quaternion = Quaternion()
+
+        self.speed = 0.02
 
     def initializeGL(self) -> None:
         glEnable(GL_DEPTH_TEST)  # for proper 3D rendering and avoid plan overlapping
@@ -29,7 +31,6 @@ class Rotation3DRender(QOpenGLWidget):
         glEnable(GL_COLOR_MATERIAL)  # smooth transition between colors
         glEnable(GL_LIGHTING)
         glEnable(GL_LIGHT0)
-
 
     def paintGL(self) -> None:
         # clear scene
@@ -43,10 +44,10 @@ class Rotation3DRender(QOpenGLWidget):
         glLoadIdentity()
         glTranslatef(0, 0, -6)  # move camera position
 
-        # rotate the sphere
-        glRotatef(self.pitch_angle, 1, 0, 0)
-        glRotatef(self.roll_angle, 0, 1, 0)
-        glRotatef(self.yaw_angle, 0, 0, 1)
+        # # rotate the sphere
+        glRotatef(-self.roll_angle, 1, 0, 0)
+        glRotatef(-self.pitch_angle, 0, 1, 0)
+        glRotatef(-self.yaw_angle, 0, 0, 1)
 
         # Render the sphere
         glColor3f(0.06, 0.36, 0.96)
@@ -55,82 +56,65 @@ class Rotation3DRender(QOpenGLWidget):
         glutSolidCone(0.2, 0.4, 50, 50)
 
     def mousePressEvent(self, event):
-        if event.buttons() == Qt.LeftButton and self.rect().contains(event.pos()):
-            self.drag_x = event.x()
-            self.drag_y = event.y()
-            self.is_dragging = True
-
-    def mouseReleaseEvent(self, event):
-        if event.buttons() == Qt.LeftButton:
-            self.is_dragging = False
+        if event.buttons() == Qt.MouseButton.LeftButton and self.rect().contains(event.pos()):
+            ratio = 200 / min(self.width(), self.height())
+            self.drag_x = event.x() * ratio - 100
+            self.drag_y = (self.height() - event.y()) * ratio - 100
 
     def mouseMoveEvent(self, event):
-        if self.is_dragging:
-            dx = event.x() - self.drag_x
-            dy = event.y() - self.drag_y
-            dpitch, dyaw, droll, self.quat = self.pan_to_rotation(dx, dy, self.quat)
-            self.roll_angle += droll
-            self.pitch_angle += dpitch
-            self.yaw_angle += dyaw
-            # self.pitch_angle += dy
-            # self.roll_angle += dx
-            # self.yaw_angle += 0
+        ratio = 200 / min(self.width(), self.height())
+        x = event.x() * ratio - 100
+        y = (self.height() - event.y()) * ratio - 100
+        if (x, y) != (self.drag_x, self.drag_y):
+            vec1 = (x - self.drag_x, y - self.drag_y, 0)
+            norm = np.linalg.norm(vec1)
+            vec1 = vec1 * 1 / norm
+            vec2 = (0, 0, 1)
+
+            axis = np.cross(vec1, vec2)
+            angle = self.speed * norm
+
+            q = Quaternion(axis=axis, angle=angle)
+            self.quaternion = self.euler_to_quaternion(self.roll_angle, self.pitch_angle, self.yaw_angle)
+            q = self.quaternion * q
+
+            self.roll_angle, self.pitch_angle, self.yaw_angle = self.quaternion_to_euler(q)
+
             self.update()
-            self.drag_x = event.x()
-            self.drag_y = event.y()
-            print(self.roll_angle, self.pitch_angle, self.yaw_angle)
+            self.drag_x = x
+            self.drag_y = y
             self.update_rot.emit(self.roll_angle, self.pitch_angle, self.yaw_angle)
 
-    def quaternion_to_euler(self, quaternion):
-        # Convert a quaternion to Euler angles (roll, pitch, yaw) in degrees.
+    def quaternion_to_euler(self, q):
+        w, x, y, z = q
 
-        # Extract the components of the quaternion.
-        w, x, y, z = quaternion
+        # Calculate roll
+        sr_cp = 2.0 * (w * x + y * z)
+        cr_cp = 1.0 - 2.0 * (x * x + y * y)
+        roll = np.arctan2(sr_cp, cr_cp)
 
-        # Calculate the roll (x-axis rotation).
-        sinr_cosp = 2.0 * (w * x + y * z)
-        cosr_cosp = 1.0 - 2.0 * (x * x + y * y)
-        roll = math.atan2(sinr_cosp, cosr_cosp)
-
-        # Calculate the pitch (y-axis rotation).
-        sinp = 2.0 * (w * y - z * x)
-        if abs(sinp) >= 1:
-            pitch = math.copysign(math.pi / 2, sinp)  # Use 90 degrees if out of range
-        else:
-            pitch = math.asin(sinp)
+        # Calculate pitch
+        sp = 2.0 * (w * y - z * x)
+        pitch = np.copysign(np.pi / 2, sp) if abs(sp) >= 1 else np.arcsin(sp)
 
         # Calculate the yaw (z-axis rotation).
-        siny_cosp = 2.0 * (w * z + x * y)
-        cosy_cosp = 1.0 - 2.0 * (y * y + z * z)
-        yaw = math.atan2(siny_cosp, cosy_cosp)
+        sy_cp = 2.0 * (w * z + x * y)
+        cy_cp = 1.0 - 2.0 * (y * y + z * z)
+        yaw = np.arctan2(sy_cp, cy_cp)
 
-        return math.degrees(roll), math.degrees(pitch), math.degrees(yaw)
+        return np.degrees(roll), np.degrees(pitch), np.degrees(yaw)
 
-    def pan_to_rotation(self, dx, dy, current_quaternion):
-        # Sensitivity values control how fast the sphere rotates in response to panning.
-        sensitivity_x = 0.01  # Adjust this value as needed.
-        sensitivity_y = 0.01  # Adjust this value as needed.
+    def euler_to_quaternion(self, roll, pitch, yaw):
+        cy = np.cos(np.deg2rad(yaw) * .5, )
+        sy = np.sin(np.deg2rad(yaw) * .5)
+        cr = np.cos(np.deg2rad(roll) * .5)
+        sr = np.sin(np.deg2rad(roll) * .5)
+        cp = np.cos(np.deg2rad(pitch) * .5)
+        sp = np.sin(np.deg2rad(pitch) * .5)
 
-        # Calculate incremental rotation angles based on delta x and delta y.
-        d_yaw = dx * sensitivity_x
-        d_pitch = dy * sensitivity_y
+        w = cy * cr * cp + sy * sr * sp
+        x = cy * sr * cp - sy * cr * sp
+        y = cy * cr * sp + sy * sr * cp
+        z = sy * cr * cp - cy * sr * sp
 
-        # Create quaternions for the incremental rotations.
-        quaternion_yaw = Quaternion(axis=[0, 0, 1], angle=d_yaw)
-        quaternion_pitch = Quaternion(axis=[1, 0, 0], angle=d_pitch)
-
-        # Combine the incremental rotations (yaw and pitch) into a single quaternion.
-        cumulative_quaternion = quaternion_yaw * quaternion_pitch
-
-        # Update the current quaternion with the cumulative rotation.
-        new_quaternion = cumulative_quaternion * current_quaternion
-
-        # Calculate the incremental changes in roll, pitch, and yaw.
-        current_euler = self.quaternion_to_euler(current_quaternion)
-        new_euler = self.quaternion_to_euler(new_quaternion)
-
-        droll = new_euler[0] - current_euler[0]
-        dpitch = new_euler[1] - current_euler[1]
-        dyaw = new_euler[2] - current_euler[2]
-
-        return droll, dpitch, dyaw, new_quaternion
+        return Quaternion(x=x, y=y, z=z, w=w)
