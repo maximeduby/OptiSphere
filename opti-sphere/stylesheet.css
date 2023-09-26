@@ -2,6 +2,11 @@ QMainWindow{
     min-width: 1280;
     min-height: 720;
 }
+
+QLabel{
+    color: white
+}
+
 QLabel#header {
     font-size: 30px;
     font-weight: bold;
@@ -122,27 +127,30 @@ QSlider::handle:horizontal:hover{
     border-color: #1261ff;
 }
 
-QPushButton#apply-rot-btn{
+QPushButton#action-btn{
     height: 28px;
-    background: #3E3E3E;
+    background: #3e3e3e;
     border-radius: 10px;
     color: #CCCCCC;
 }
 
-QPushButton#apply-rot-btn:hover{
+QPushButton#action-btn:hover{
     height: 28px;
     background: #4e4e4e;
     color: #CCCCCC;
 }
 
-QPushButton#apply-rot-btn:disabled{
+QPushButton#action-btn:disabled{
     height: 28px;
     background: hsl(0, 0%, 17%);
     border-radius: 10px;
     color: hsl(0, 0%, 50%);
 }
+QPushButton#action-btn:pressed{
+    background-color: hsl(0,0%, 37%);
+}
 
-QSpinBox{
+QSpinBox, QDoubleSpinBox{
     border: 1px solid #5E5E5E;
     border-radius: 5px;
     background: #151415;
@@ -150,12 +158,12 @@ QSpinBox{
     padding: 5px;
 }
 
-QSpinBox::up-button{
+QSpinBox::up-button, QDoubleSpinBox::up-button{
     border-image: url("resources/icons/caret-up-icon.svg");
     margin-top: 3px;
     margin-right: 5px;
 }
-QSpinBox::down-button{
+QSpinBox::down-button, QDoubleSpinBox::down-button{
     border-image: url("resources/icons/caret-down-icon.svg");
     margin-right: 5px;
     margin-bottom: 3px
@@ -194,4 +202,63 @@ QPushButton#video_control_btn{
     background: transparent;
     height: 30px;
     width: 30px;
+}
+
+QCheckBox#switch::indicator{
+    width: 30px;
+    height: 19px;
+    border-radius: 9px;
+    /* padding: 2px; */
+
+}
+
+QCheckBox#switch::indicator:unchecked{
+    image: url(resources/icons/toggle-off-icon.svg);
+}
+QCheckBox#switch::indicator:hover{
+    background-color: hsl(0, 0%, 31%);
+}
+
+QCheckBox#switch::indicator:checked{
+    image: url(resources/icons/toggle-on-icon.svg);
+}
+
+QComboBox {
+    border-radius: 10px;
+    background-color: hsl(0, 0, 24%);
+    padding: 5px;
+    padding-left: 10px;
+    color: white;
+    border-style: none;
+}
+
+QComboBox::drop-down {
+    width: 25px;
+    border: none;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+QComboBox::drop-down:on {
+    background-color: hsl(0, 0%, 17%);
+    width: 25px;
+}
+
+QComboBox::down-arrow {
+    image: url(resources/icons/caret-down-icon.svg);
+    width: 25;
+}
+
+QComboBox QAbstractItemView{
+    background-color: hsl(0, 0, 17%);
+    selection-color: white;
+    margin: 0;
+    padding: 0;
+    border-radius: 5px;
+}
+
+
+QWidget#sub-widget-container{
+    border-top: 1px solid #5E5E5E;
+    border-bottom: 1px solid #5e5e5e;
 }

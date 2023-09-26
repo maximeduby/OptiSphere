@@ -18,9 +18,11 @@ class SerialCom(serial.Serial):
     COMMAND = b'\x21'  # command to RPi
     RESPONSE = b'\x22'  # response from RPi
     ERROR = b'\x23'  # Error from RPi
-    ALL_DONE = b'\x24'
+    ALL_DONE = b'\x24' # Transmission can stop
 
-    def __init__(self, port=None):
+    done_signal = Signal(bool)
+
+    def __init__(self, wnd, port=None):
         super().__init__(
             port=port,
             baudrate=BAUD_RATE,
@@ -31,7 +33,8 @@ class SerialCom(serial.Serial):
         )
 
         self.th = None
-        self.print_signal_holder = SerialSignalHolder()
+        self.signal_holder = SignalHolder()
+        self.wnd = wnd
 
     def available_port(self):
         if sys.platform.startswith('win'):
@@ -56,20 +59,20 @@ class SerialCom(serial.Serial):
     def send_instruction(self, roll, pitch, yaw):
         roll, pitch, yaw = (bytes(str(i), 'utf-8') for i in (roll, pitch, yaw))
         packet = self.SOP + self.INSTRUCTION + roll + self.SEP + pitch + self.SEP + yaw + self.EOP
-
-        self.th = SerialThread(self, packet)
+        self.th = SerialThread(self, packet, self.wnd.threads)
         self.th.response_signal.connect(self.handle_response)
         self.th.start()
 
     def send_command(self, command):
         packet = self.SOP + self.COMMAND + bytes(command, 'utf-8') + self.EOP
 
-        self.th = SerialThread(self, packet)
+        self.th = SerialThread(self, packet, self.wnd.threads)
         self.th.response_signal.connect(self.handle_response)
         self.th.start()
 
     def handle_response(self, category, content):
         if category == self.ALL_DONE:
+            self.signal_holder.done_signal.emit()
             self.th.waiting = False
         elif category == self.RESPONSE:
             response = content.decode('utf-8')
@@ -79,5 +82,6 @@ class SerialCom(serial.Serial):
             print("Error:", error)
 
 
-class SerialSignalHolder(QObject):
+class SignalHolder(QObject):
     print_signal = Signal(bytes, bytes)
+    done_signal = Signal()

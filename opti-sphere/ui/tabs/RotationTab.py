@@ -14,7 +14,7 @@ class RotationTab(QWidget):
         self.rotation_render = Rotation3DRender()
         self.rotation_render.update_rot.connect(self.handle_3d_render)
 
-        self.apply_rot_btn = QPushButton("Apply Rotation", objectName="apply-rot-btn")
+        self.apply_rot_btn = QPushButton("Apply Rotation", objectName="action-btn")
         self.apply_rot_btn.setEnabled(False)
         self.apply_rot_btn.clicked.connect(self.apply_rot)
 
@@ -81,6 +81,7 @@ class RotationTab(QWidget):
         self.pitch_slider.setValue(value)
         self.rotation_render.pitch_angle = value
         self.rotation_render.update()
+        self.check_values()
 
     @Slot()
     def handle_yaw(self, value):
@@ -88,6 +89,7 @@ class RotationTab(QWidget):
         self.yaw_slider.setValue(value)
         self.rotation_render.yaw_angle = value
         self.rotation_render.update()
+        self.check_values()
 
     @Slot()
     def handle_3d_render(self, roll, pitch, yaw):

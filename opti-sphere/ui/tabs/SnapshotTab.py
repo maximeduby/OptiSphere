@@ -21,7 +21,7 @@ class SnapshotTab(Tab):
         self.sidebar_layout.addWidget(self.ss_widget)
 
     def save(self):
-        filename = QFileDialog.getSaveFileName(None, "Save Image", self.title, "Image (*.jpg *.png)")
+        filename = QFileDialog.getSaveFileName(None, "Save Image", self.title, "Image (*.tiff *.jpg *.png)")
         if filename[0] == '':
             return
         cv2.imwrite(filename[0], self.frame)

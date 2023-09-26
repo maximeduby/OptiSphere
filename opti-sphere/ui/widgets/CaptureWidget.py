@@ -99,12 +99,11 @@ class CaptureWidget(QWidget):
             self.vid_btn.set_icon_color("#f61027")
             self.vid_btn.setStyleSheet('border-color: #f61027;')
             self.vid_btn.setEnabled(True)
-            self.vid_th = VideoThread(self.wnd.main_tab.th)
+            self.vid_th = VideoThread(self.wnd.main_tab.th, self.wnd.threads)
             self.vid_th.vid_signal.connect(self.add_vid_tab)
             self.vid_th.start()
         else:
-            self.vid_th.running = False
-            self.vid_th.wait()
+            self.vid_th.stop()
             self.vid_btn.setObjectName("start")
             self.vid_btn.set_icon_color("#CCCCCC")
             self.vid_btn.setStyleSheet('border-color: #CCCCCC;')
@@ -122,7 +121,7 @@ class CaptureWidget(QWidget):
                 self.tl_btn.setObjectName("stop")
                 self.tl_btn.set_icon_color("#f61027")
                 self.tl_btn.setStyleSheet('border-color: #f61027;')
-                self.tl_th = TimelapseThread(self.wnd.main_tab.th, self.tl_delta_time)
+                self.tl_th = TimelapseThread(self.wnd.main_tab.th, self.tl_delta_time, self.wnd.threads)
                 self.tl_th.tl_signal.connect(self.add_tl_tab)
                 self.tl_cooldown = QTimer(self)
                 self.tl_cooldown.timeout.connect(self.capture_tl)
@@ -131,8 +130,7 @@ class CaptureWidget(QWidget):
             self.tl_btn.setEnabled(True)
         else:
             self.tl_cooldown.stop()
-            self.tl_th.running = False
-            self.tl_th.wait()
+            self.tl_th.stop()
             self.tl_btn.setObjectName("start")
             self.tl_btn.set_icon_color("#CCCCCC")
             self.tl_btn.setStyleSheet('border-color: #CCCCCC;')

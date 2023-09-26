@@ -89,7 +89,7 @@ class TimelapseTab(Tab):
 
     def get_dimensions(self):
         vid_height, vid_width, _ = self.frames[0].shape
-        dim = f"{vid_width}x{vid_height}"
+        dim = f"{vid_width} × {vid_height}"
         return dim
 
     def get_duration(self):

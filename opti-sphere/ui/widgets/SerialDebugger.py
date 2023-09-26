@@ -3,8 +3,6 @@ from PySide6.QtGui import QScreen, QCloseEvent
 from PySide6.QtWidgets import QVBoxLayout, QTextEdit, QLineEdit, QApplication, QWidget
 from serial import SerialException
 
-from core.models.SerialCom import SerialCom
-
 
 class SerialDebugger(QWidget):
     def __init__(self, wnd):
@@ -16,7 +14,7 @@ class SerialDebugger(QWidget):
         self.move(geometry.topLeft())
 
         self.wnd = wnd
-        self.wnd.ser.print_signal_holder.print_signal.connect(self.handle_print_signal)
+        self.wnd.ser.signal_holder.print_signal.connect(self.handle_print_signal)
 
         layout = QVBoxLayout()
 

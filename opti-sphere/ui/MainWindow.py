@@ -3,10 +3,10 @@ from PySide6.QtCore import Slot
 
 from PySide6.QtGui import QScreen, QActionGroup, QAction
 from PySide6.QtMultimedia import QMediaDevices
-from PySide6.QtWidgets import QMainWindow, QApplication, QWidget, QHBoxLayout, QTabWidget, QTabBar, QMessageBox, QMenu, \
-    QInputDialog
+from PySide6.QtWidgets import (QMainWindow, QApplication, QWidget, QHBoxLayout,
+                               QTabWidget, QTabBar, QMessageBox, QMenu, QInputDialog)
 
-from config import WINDOW_WIDTH, WINDOW_HEIGHT, BAUD_RATE
+from config import WINDOW_WIDTH, WINDOW_HEIGHT
 from core.models.SerialCom import SerialCom
 from core.models.Sphere import Sphere
 from ui.widgets.SerialDebugger import SerialDebugger
@@ -23,6 +23,11 @@ class MainWindow(QMainWindow):
         geometry = self.frameGeometry()
         geometry.moveCenter(QScreen.availableGeometry(QApplication.primaryScreen()).center())
         self.move(geometry.topLeft())
+
+        # variables
+        self.fps = 30
+        self.sphere = Sphere()
+        self.threads = []
 
         # tabs
         self.tabs = QTabWidget()
@@ -54,12 +59,8 @@ class MainWindow(QMainWindow):
         self.show()
 
         # serial connection
-        self.ser = SerialCom()
+        self.ser = SerialCom(wnd=self)
         self.setup_serial_connection()
-
-        # variables
-        self.fps = 30
-        self.sphere = Sphere()
 
     def close_tab(self, index):
         if index != 0:
@@ -81,7 +82,8 @@ class MainWindow(QMainWindow):
         if confirm == QMessageBox.StandardButton.Close:
             for window in QApplication.topLevelWidgets():
                 window.close()
-            self.main_tab.th.stop()
+            for th in reversed(self.threads):
+                th.stop()
             event.accept()
         else:
             event.ignore()
@@ -155,7 +157,7 @@ class MainWindow(QMainWindow):
                 port = None
         if port:
             try:
-                self.ser = SerialCom(port)
+                self.ser = SerialCom(wnd=self, port=port)
             except serial.SerialException:
                 self.raise_()
                 print(f"Error: Failed to communicate with {port}")

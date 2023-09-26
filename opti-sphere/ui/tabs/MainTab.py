@@ -29,7 +29,7 @@ class MainTab(Tab):
         self.sidebar_layout.addWidget(self.capture)
         self.sidebar_layout.addWidget(self.control)
 
-        self.th = CameraThread(0)
+        self.th = CameraThread(0, self.wnd.threads)
         self.th.cam_signal.connect(self.camera_feed.set_image)
         self.th.start()
 
@@ -37,6 +37,6 @@ class MainTab(Tab):
     def select_camera_source(self):
         device_index = self.wnd.cam_devices_group.checkedAction().data()
         self.th.stop()
-        self.th = CameraThread(device_index)
+        self.th = CameraThread(device_index, self.wnd.threads)
         self.th.cam_signal.connect(self.camera_feed.set_image)
         self.th.start()

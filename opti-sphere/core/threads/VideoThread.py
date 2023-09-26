@@ -5,9 +5,10 @@ class VideoThread(QThread):
     vid_signal = Signal(object)
     stop_signal = Signal()
 
-    def __init__(self, cam_thread):
+    def __init__(self, cam_thread, threads):
         super().__init__()
         self.source = cam_thread
+        self.threads = threads
         self.frames = []
         self.running = True
 
@@ -19,7 +20,7 @@ class VideoThread(QThread):
         self.stop_signal.connect(self.stop_timer)
 
     def run(self):
-
+        self.threads.append(self)
         while self.running:
             if not self.timer.isActive():
                 self.timer.start()
@@ -28,6 +29,7 @@ class VideoThread(QThread):
             self.vid_signal.emit(self.frames)
         else:
             raise Exception("No frames to create a video")
+        self.threads.remove(self)
 
     @Slot()
     def get_frame(self):
@@ -36,3 +38,8 @@ class VideoThread(QThread):
     @Slot()
     def stop_timer(self):
         self.timer.stop()
+
+    def stop(self):
+        self.running = False
+        self.timer.stop()
+        self.wait()
