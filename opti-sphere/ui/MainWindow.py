@@ -1,14 +1,21 @@
+import os
+import shutil
+from configparser import ConfigParser
+
+import cv2
 import serial
 from PySide6.QtCore import Slot
 
 from PySide6.QtGui import QScreen, QActionGroup, QAction
 from PySide6.QtMultimedia import QMediaDevices
 from PySide6.QtWidgets import (QMainWindow, QApplication, QWidget, QHBoxLayout,
-                               QTabWidget, QTabBar, QMessageBox, QMenu, QInputDialog)
+                               QTabWidget, QTabBar, QMessageBox, QMenu, QInputDialog, QDialog)
 
 from config import WINDOW_WIDTH, WINDOW_HEIGHT
 from core.models.SerialCom import SerialCom
 from core.models.Sphere import Sphere
+from ui.dialogs.CheckListDialog import CheckListDialog
+from ui.tabs.ScanTab import ScanTab
 from ui.widgets.SerialDebugger import SerialDebugger
 from ui.tabs.MainTab import MainTab
 
@@ -61,6 +68,12 @@ class MainWindow(QMainWindow):
         # serial connection
         self.ser = SerialCom(wnd=self)
         self.setup_serial_connection()
+
+        # debugger
+        self.debugger = SerialDebugger(self)
+
+        # recovery
+        self.fetch_recovery()
 
     def close_tab(self, index):
         if index != 0:
@@ -135,8 +148,8 @@ class MainWindow(QMainWindow):
     def open_serial_debugger(self):
         if self.ser.isOpen():
             self.tools_menu.actions()[0].setEnabled(False)
-            dialog = SerialDebugger(self)
-            dialog.show()
+            # debugger = SerialDebugger(self)
+            self.debugger.show()
 
     def open_serial_setup(self):
         ports = ['--None--'] + self.ser.available_port()
@@ -166,3 +179,48 @@ class MainWindow(QMainWindow):
             self.raise_()
             print("Error: Could not find any device for serial communication")
             QMessageBox(self).critical(self, "Error", f"Could not find any device for serial communication")
+
+    def fetch_recovery(self):
+        directories = next(os.walk('recovery'))[1]
+        if not directories:
+            print("Nothing in recovery folder")
+            return
+        recovery_list = []
+        dialog = CheckListDialog(directories)
+        if dialog.exec() == QDialog.DialogCode.Accepted:
+            recovery_list = dialog.choices
+        for directory in directories:
+            if not (directory in recovery_list):
+                shutil.rmtree(os.path.join("recovery", directory))
+        for directory in recovery_list:
+            try:
+                location = os.path.join("recovery", directory)
+                config = ConfigParser()
+                config.read(os.path.join(location, "CONFIG.INI"))
+                nb_frames = int(config['SCAN']['nb_frames'])
+                frames = []
+                frames_files = []
+                for filename in os.listdir(os.path.join(location, "frames")):
+                    f = os.path.join(os.path.join(location, "frames"), filename)
+                    if os.path.isfile(f):
+                        frames_files.append(f)
+
+                if len(frames_files) == nb_frames and nb_frames != 0:
+                    frames_files.sort()
+                    for file in frames_files:
+                        frames.append(cv2.imread(file))
+                    info = (
+                        config['SCAN']['name'],
+                        config['SCAN']['method'],
+                        config['SCAN']['axis'],
+                        float(config['SCAN']['delta_angle']),
+                        False
+                    )
+                    scan_tab = ScanTab(frames, info[0], info)
+                    scan_tab.scan_widget.update_signal.connect(self.update_name)
+                    self.tabs.addTab(scan_tab, info[0])
+                    self.tabs.setCurrentWidget(scan_tab)
+                    print("import tab succeeded")
+
+            except FileExistsError or FileNotFoundError as e:
+                print(e)

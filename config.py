@@ -9,5 +9,3 @@ WINDOW_HEIGHT = 720
 # Serial configuration
 BAUD_RATE = 115200
 
-# Default capture configuration
-

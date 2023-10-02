@@ -9,34 +9,34 @@ class SerialThread(QThread):
         super().__init__()
         self.ser = serial
         self.packet = packet
-        self.waiting = True
+        self.reading = True
         self.threads = threads
 
     def run(self):
-        self.threads.append(self)
-        if not self.ser.isOpen():
-            print("Serial Not opened")
-            return
         try:
-            print("Packet to be sent:", self.packet)
+            self.threads.append(self)
+            if not self.ser.isOpen():
+                print("Serial Not opened")
+                return
+            print("Packet sent:", self.packet)
             self.ser.write(self.packet)
-        except SerialException:
-            print("Error with serial communication when writing")
-        while self.waiting:
-            try:
+            self.ser.is_done = False
+            while self.reading:
                 if self.ser.read(1) == self.ser.SOP:
                     category = self.ser.read(1)
                     content = self.ser.read_until(self.ser.EOP)[:-1]  # removing EOP byte
-                    # print(f"Packet Received:\n\tCategory: {category}\n\tContent: {content}")
+                    print(f"Packet Received:\n\tCategory: {category}\n\tContent: {content}")
                     self.response_signal.emit(category, content)
                     self.ser.signal_holder.print_signal.emit(category, content)
-            except SerialException:
-                pass
-                # print("Error with serial communication when reading")
-                # self.waiting = False
+                    if category == self.ser.ALL_DONE:
+                        self.ser.is_done = True
+                        self.reading = False
+                        print("[Done]")
+        except Exception as e:
+            print("Error with the serial Exception", e)
         self.threads.remove(self)
         print(self.threads)
 
     def stop(self):
-        self.waiting = False
+        self.reading = False
         self.wait()

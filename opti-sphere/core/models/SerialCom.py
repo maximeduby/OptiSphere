@@ -21,6 +21,7 @@ class SerialCom(serial.Serial):
     ALL_DONE = b'\x24' # Transmission can stop
 
     done_signal = Signal(bool)
+    is_done = False
 
     def __init__(self, wnd, port=None):
         super().__init__(
@@ -32,9 +33,9 @@ class SerialCom(serial.Serial):
             timeout=1
         )
 
-        self.th = None
         self.signal_holder = SignalHolder()
         self.wnd = wnd
+        self.th = None
 
     def available_port(self):
         if sys.platform.startswith('win'):
@@ -72,8 +73,9 @@ class SerialCom(serial.Serial):
 
     def handle_response(self, category, content):
         if category == self.ALL_DONE:
-            self.signal_holder.done_signal.emit()
-            self.th.waiting = False
+            print("DONE DONE DONE")
+            self.is_done = True
+            # self.signal_holder.done_signal.emit()
         elif category == self.RESPONSE:
             response = content.decode('utf-8')
             print("Response: ", response)

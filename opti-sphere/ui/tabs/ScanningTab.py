@@ -1,9 +1,10 @@
 from PySide6.QtCore import Slot
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QComboBox, QPushButton, QSpinBox, \
-    QDoubleSpinBox, QCheckBox, QFrame
+    QDoubleSpinBox, QCheckBox, QFrame, QProgressBar
 
 from core.threads.ScanningThread import ScanningThread
 from ui.tabs.ScanTab import ScanTab
+from ui.widgets.ProgressWidget import ProgressWidget
 
 
 class ScanningTab(QWidget):
@@ -61,22 +62,29 @@ class ScanningTab(QWidget):
         self.scan_btn = QPushButton("Start Scanning", objectName="action-btn")
         self.scan_btn.clicked.connect(self.scan)
 
+        self.scan_progress = ProgressWidget()
+        self.scan_progress.setHidden(True)
+
         layout.addLayout(method_layout)
         layout.addWidget(self.frame_method)
         layout.addLayout(axis_layout)
         layout.addWidget(self.scan_btn)
+        layout.addWidget(self.scan_progress)
         layout.addStretch()
         self.setLayout(layout)
 
     @Slot()
     def scan(self):
         self.scan_btn.setEnabled(False)
+        self.scan_progress.setHidden(False)
         self.scan_th = ScanningThread(self.wnd,
+                                      self.scan_progress,
                                       self.method.currentText(),
                                       self.axis.currentText(),
                                       self.angle.value(),
                                       self.is_auto.isChecked())
         self.scan_th.scan_signal.connect(self.add_scan_tab)
+        self.scan_th.progress_signal.connect(self.scan_progress.update_progress)
         self.scan_th.start()
         self.scan_th.moveToThread(self.thread())
         self.scan_th.finished.connect(lambda: self.scan_btn.setEnabled(True))
@@ -87,6 +95,8 @@ class ScanningTab(QWidget):
 
     @Slot()
     def add_scan_tab(self, frames, info):
+        self.scan_progress.setHidden(True)
+        self.scan_progress.reset()
         title = f"scan{self.scan_counter}"
         scan_tab = ScanTab(frames, title, info)
         scan_tab.scan_widget.update_signal.connect(self.wnd.update_name)

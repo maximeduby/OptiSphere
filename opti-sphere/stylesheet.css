@@ -14,7 +14,7 @@ QLabel#header {
     margin-bottom: 10px;
 }
 
-QMainWindow, QTabWidget::pane, QDialog{
+QMainWindow, QTabWidget::pane, QDialog, QWidget#ser-debugger{
     background: #151415;
     
 }
@@ -261,4 +261,29 @@ QComboBox QAbstractItemView{
 QWidget#sub-widget-container{
     border-top: 1px solid #5E5E5E;
     border-bottom: 1px solid #5e5e5e;
+}
+
+QLabel#status{
+    color: #CCCCCC;
+    font-weight: 300;
+    font-size: 12px;
+}
+
+QLineEdit#command{
+    background-color: hsl(0, 0, 17%); /* Background color of the QLineEdit */
+    padding: 5px; /* Padding inside the QLineEdit */
+    color: #fff;
+    font-size: 16px; /* Font size */
+    border-radius: 10px;
+}
+
+QLineEdit#command:focus {
+    border: 1px solid #CCCCCC; /* Border color when the QLineEdit is focused */
+}
+
+QTextEdit#console{
+    background-color: hsl(0, 0, 17%);
+    color:#fff;
+    font-size: 16px;
+    border-radius: 10px;
 }
