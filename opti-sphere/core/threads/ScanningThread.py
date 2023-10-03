@@ -6,8 +6,6 @@ from datetime import datetime
 import cv2
 from PySide6.QtCore import QThread, Slot, Signal
 
-from core.threads.SnapshotThread import SnapshotThread
-
 
 class ScanningThread(QThread):
     scan_signal = Signal(object, object)
@@ -70,7 +68,7 @@ class ScanningThread(QThread):
             os.mkdir(os.path.join(location, "frames"))
             config = ConfigParser()
             config['SCAN'] = {
-                'name' : self.directory,
+                'name': self.directory,
                 'nb_frames': str(int(360/self.delta_angle + 1)),
                 'method': self.method,
                 'axis': self.axis,

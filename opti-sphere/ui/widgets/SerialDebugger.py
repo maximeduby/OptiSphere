@@ -1,5 +1,5 @@
-from PySide6.QtCore import Slot, Qt, QEvent
-from PySide6.QtGui import QScreen, QCloseEvent, QKeyEvent, QShortcut
+from PySide6.QtCore import Slot, Qt
+from PySide6.QtGui import QScreen, QCloseEvent, QShortcut
 from PySide6.QtWidgets import QVBoxLayout, QTextEdit, QLineEdit, QApplication, QWidget
 from serial import SerialException
 
