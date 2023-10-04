@@ -51,8 +51,10 @@ class ScanningThread(QThread):
     def rotate(self, axis):
         if axis == "Roll":
             self.wnd.ser.send_instruction(self.current_angle, 0, 0)
+            self.wnd.sphere.set_rotation((self.current_angle, 0, 0))
         elif axis == "Pitch":
             self.wnd.ser.send_instruction(0, self.current_angle, 0)
+            self.wnd.sphere.set_rotation((0, self.current_angle, 0))
         self.__waiting_loop()
 
     @Slot()

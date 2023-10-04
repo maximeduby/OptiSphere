@@ -35,6 +35,10 @@ class TrackingTab(QWidget):
 
         self.box = None
         self.dimension = (-1, -1)
+        self.tracking_offset = 300
+        self.pix_deg_ratio = 150
+        self.track = []
+        self.can_rotate = True
 
     @Slot()
     def roi_selection(self):
@@ -61,18 +65,39 @@ class TrackingTab(QWidget):
         else:
             if self.box:
                 self.roi_selection()
-                self.wnd.main_tab.tracker = cv2.TrackerKCF_create()
+                self.wnd.main_tab.tracker = cv2.TrackerCSRT_create()
                 self.wnd.main_tab.tracker.init(self.wnd.main_tab.th.frame, self.box)
                 self.wnd.main_tab.is_tracking_on = True
                 self.tracking_btn.setText("Stop Tracking")
                 self.wnd.main_tab.box_signal.connect(self.handle_tracking)
                 self.dimension = (self.wnd.main_tab.th.frame.shape[1], self.wnd.main_tab.th.frame.shape[0])
+                self.tracking_offset = int(self.dimension[1] * 2/6)
+                self.track = []
             else:
                 print("No ROI selected")
 
     @Slot()
     def handle_tracking(self, box):
-        x = box[0] + box[2]
-        y = box[1] + box[3]
-
+        x = int(box[0] + box[2]/2)
+        y = int(box[1] + box[3]/2)
+        self.can_rotate = self.wnd.ser.is_done
         print("Pos:", x, y)
+        print(box[0], box[1])
+        print("Dimensions", self.dimension)
+        distance = (self.dimension[0]/2 - x, y - self.dimension[1]/2)
+        print("DISTANCE", distance, "OFFSET", self.tracking_offset)
+        if self.can_rotate and (abs(distance[0]) > self.tracking_offset or abs(distance[1]) > self.tracking_offset):
+            print("Is offset")
+            rot = self.wnd.sphere.get_rotation()
+            new_rot = (
+                round(rot[0] + (distance[0] / self.pix_deg_ratio), 1),
+                round(rot[1] + (distance[1] / self.pix_deg_ratio), 1),
+                rot[2]
+            )
+            self.can_rotate = False
+            self.wnd.ser.send_instruction(*new_rot)
+            self.wnd.sphere.set_rotation(new_rot)
+
+
+
+
