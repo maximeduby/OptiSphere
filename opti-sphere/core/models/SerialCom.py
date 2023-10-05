@@ -60,6 +60,9 @@ class SerialCom(serial.Serial):
     def send_instruction(self, roll, pitch, yaw):
         roll, pitch, yaw = (bytes(str(i), 'utf-8') for i in (roll, pitch, yaw))
         packet = self.SOP + self.INSTRUCTION + roll + self.SEP + pitch + self.SEP + yaw + self.EOP
+
+        if self.th and self.th.isRunning():
+            self.th.stop()
         self.th = SerialThread(self, packet, self.wnd.threads)
         self.th.response_signal.connect(self.handle_response)
         self.th.start()
@@ -67,6 +70,8 @@ class SerialCom(serial.Serial):
     def send_command(self, command):
         packet = self.SOP + self.COMMAND + bytes(command, 'utf-8') + self.EOP
 
+        if self.th and self.th.isRunning():
+            self.th.stop()
         self.th = SerialThread(self, packet, self.wnd.threads)
         self.th.response_signal.connect(self.handle_response)
         self.th.start()
@@ -74,8 +79,6 @@ class SerialCom(serial.Serial):
     def handle_response(self, category, content):
         if category == self.ALL_DONE:
             print("DONE DONE DONE")
-            self.is_done = True
-            # self.signal_holder.done_signal.emit()
         elif category == self.RESPONSE:
             response = content.decode('utf-8')
             print("Response: ", response)

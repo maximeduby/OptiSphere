@@ -22,7 +22,7 @@ class SerialThread(QThread):
             self.ser.write(self.packet)
             self.ser.is_done = False
             while self.reading:
-                if self.ser.read(1) == self.ser.SOP:
+                if self.ser.in_waiting and self.ser.read(1) == self.ser.SOP:
                     category = self.ser.read(1)
                     content = self.ser.read_until(self.ser.EOP)[:-1]  # removing EOP byte
                     print(f"Packet Received:\n\tCategory: {category}\n\tContent: {content}")

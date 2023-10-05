@@ -30,11 +30,11 @@ class ScanningThread(QThread):
     def run(self):
         self.wnd.threads.append(self)
         self.generate_recovery_directory()
-        self.wnd.ser.signal_holder.done_signal.connect(self.set_done())
+        # self.wnd.ser.signal_holder.done_signal.connect(self.set_done())
         while self.running and self.current_angle <= 180:
             self.rotate(self.axis)
             self.progress_signal.emit("Scanning...", int((self.current_angle + 180) / 3.6))
-            time.sleep(1.5)
+            # time.sleep(1.5)
             self.add_frame(self.wnd.main_tab.th.frame)
             self.current_angle += self.delta_angle
             print(self.current_angle)

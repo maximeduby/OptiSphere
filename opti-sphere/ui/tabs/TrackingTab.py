@@ -1,6 +1,12 @@
+import datetime
+
 import cv2
+import numpy as np
 from PySide6.QtCore import Slot
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QPushButton, QHBoxLayout, QLabel, QComboBox
+
+from core.models.TrackingData import TrackingData
+from ui.tabs.TrackTab import TrackTab
 
 
 class TrackingTab(QWidget):
@@ -39,12 +45,14 @@ class TrackingTab(QWidget):
         self.pix_deg_ratio = 150
         self.track = []
         self.can_rotate = True
+        self.track_counter = 1
 
     @Slot()
     def roi_selection(self):
         if self.wnd.main_tab.camera_feed.selection_mode:
             self.wnd.main_tab.camera_feed.selection_mode = False
-            self.wnd.main_tab.camera_feed.selection.hide()
+            if self.wnd.main_tab.camera_feed.selection:
+                self.wnd.main_tab.camera_feed.selection.hide()
             self.roi_btn.setText("Select ROI")
         else:
             self.wnd.main_tab.is_tracking_on = False
@@ -62,6 +70,15 @@ class TrackingTab(QWidget):
             self.wnd.main_tab.is_tracking_on = False
             self.tracking_btn.setText("Start Tracking")
             self.box = None
+            if len(self.track) > 2:
+                title = f"track{self.track_counter}"
+                info = (None, None)
+                track_tab = TrackTab(self.track, title, info)
+                track_tab.track_widget.update_signal.connect(self.wnd.update_name)
+                self.wnd.tabs.addTab(track_tab, title)
+                self.wnd.tabs.setCurrentWidget(track_tab)
+                self.track_counter += 1
+
         else:
             if self.box:
                 self.roi_selection()
@@ -71,23 +88,25 @@ class TrackingTab(QWidget):
                 self.tracking_btn.setText("Stop Tracking")
                 self.wnd.main_tab.box_signal.connect(self.handle_tracking)
                 self.dimension = (self.wnd.main_tab.th.frame.shape[1], self.wnd.main_tab.th.frame.shape[0])
-                self.tracking_offset = int(self.dimension[1] * 2/6)
-                self.track = []
+                self.tracking_offset = int(self.dimension[1] * 2 / 6)
+                self.track = [
+                    TrackingData(
+                        (
+                            2,
+                            np.deg2rad(self.wnd.sphere.get_rotation()[0]),
+                            np.deg2rad(self.wnd.sphere.get_rotation()[1])),
+                        datetime.datetime.now()
+                    )
+                ]
             else:
                 print("No ROI selected")
 
     @Slot()
     def handle_tracking(self, box):
-        x = int(box[0] + box[2]/2)
-        y = int(box[1] + box[3]/2)
-        self.can_rotate = self.wnd.ser.is_done
-        print("Pos:", x, y)
-        print(box[0], box[1])
-        print("Dimensions", self.dimension)
-        distance = (self.dimension[0]/2 - x, y - self.dimension[1]/2)
-        print("DISTANCE", distance, "OFFSET", self.tracking_offset)
+        x = int(box[0] + box[2] / 2)
+        y = int(box[1] + box[3] / 2)
+        distance = (self.dimension[0] / 2 - x, y - self.dimension[1] / 2)
         if self.can_rotate and (abs(distance[0]) > self.tracking_offset or abs(distance[1]) > self.tracking_offset):
-            print("Is offset")
             rot = self.wnd.sphere.get_rotation()
             new_rot = (
                 round(rot[0] + (distance[0] / self.pix_deg_ratio), 1),
@@ -98,6 +117,9 @@ class TrackingTab(QWidget):
             self.wnd.ser.send_instruction(*new_rot)
             self.wnd.sphere.set_rotation(new_rot)
 
-
-
-
+            self.track.append(
+                TrackingData((2, np.deg2rad(new_rot[0]), np.deg2rad(new_rot[1])),datetime.datetime.now())
+            )
+        elif not self.can_rotate and abs(distance[0]) <= self.tracking_offset and abs(
+                distance[1]) <= self.tracking_offset:
+            self.can_rotate = True

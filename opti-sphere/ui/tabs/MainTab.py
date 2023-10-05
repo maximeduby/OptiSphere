@@ -69,7 +69,7 @@ class MainTab(Tab):
 
     def release_tracking(self):
         if self.is_tracking_on:
-            self.is_tracking_on = False
+            self.tracking.init_tracking()
         if self.camera_feed.selection_mode:
             self.tracking.roi_selection()
 

@@ -3,7 +3,9 @@ import numpy as np
 from OpenGL.GL import *
 from OpenGL.GLU import gluPerspective
 from OpenGL.GLUT import glutWireSphere, glutSolidCone
-from PySide6.QtCore import Qt, Signal
+from OpenGL.raw.GLUT import glutSolidSphere
+from PySide6.QtCore import Qt, Signal, Slot
+from PySide6.QtGui import QWheelEvent
 from PySide6.QtOpenGLWidgets import QOpenGLWidget
 from pyquaternion import Quaternion
 
@@ -11,8 +13,9 @@ from pyquaternion import Quaternion
 class Rotation3DRender(QOpenGLWidget):
     update_rot = Signal(int, int, int)
 
-    def __init__(self):
+    def __init__(self, tracking_mode=False):
         super().__init__()
+        self.tracking_mode = tracking_mode
 
         self.roll_angle = 0
         self.pitch_angle = 0
@@ -24,6 +27,8 @@ class Rotation3DRender(QOpenGLWidget):
         self.quaternion = Quaternion()
 
         self.speed = 0.02
+        self.tracking_path = []
+        self.zoom = 0
 
     def initializeGL(self) -> None:
         glEnable(GL_DEPTH_TEST)  # for proper 3D rendering and avoid plan overlapping
@@ -31,29 +36,60 @@ class Rotation3DRender(QOpenGLWidget):
         glEnable(GL_COLOR_MATERIAL)  # smooth transition between colors
         glEnable(GL_LIGHTING)
         glEnable(GL_LIGHT0)
+        glEnable(GL_POINT_SMOOTH)
+        glEnable(GL_LINE_SMOOTH)
 
     def paintGL(self) -> None:
         # clear scene
+        glEnable(GL_LIGHTING)
+        glEnable(GL_LIGHT0)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
-        gluPerspective(30, self.width() / self.height(), 1, 1000)  # (fov, aspect ratio, nearest plan, farthest plan)
+        gluPerspective(45, self.width() / self.height(), 1, 1000)  # (fov, aspect ratio, nearest plan, farthest plan)
 
         # set scene
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
-        glTranslatef(0, 0, -6)  # move camera position
+        glTranslatef(0, 0, -6 + self.zoom)  # move camera position
 
-        # # rotate the sphere
+        # rotate the sphere
         glRotatef(-self.roll_angle, 1, 0, 0)
         glRotatef(-self.pitch_angle, 0, 1, 0)
         glRotatef(-self.yaw_angle, 0, 0, 1)
 
         # Render the sphere
-        glColor3f(0.06, 0.36, 0.96)
-        glutWireSphere(1, 50, 50)
-        glColor3f(1, 0, 0)
-        glutSolidCone(0.2, 0.4, 50, 50)
+        if self.tracking_mode:
+            glDisable(GL_LIGHTING)
+            glDisable(GL_LIGHT0)
+            glColor3f(1, 1, 1)
+            glutSolidSphere(1.99, 50, 50)
+
+            # glPointSize(15)
+            # for i, point in enumerate(self.tracking_path):
+            #     glBegin(GL_POINTS)
+            #     if i == 0:
+            #         glColor3d(0, 0, 1)
+            #     else:
+            #         glColor3d(*point.get_color(point[i-1]))
+            #     glVertex3d(*point.get_cartesian())
+            #     glEnd()
+
+            glLineWidth(15)
+            for i in range(1, len(self.tracking_path)):
+                glBegin(GL_LINES)
+                glColor3f(*self.tracking_path[i].get_color(self.tracking_path[i-1]))
+                glVertex3f(*self.tracking_path[i-1].get_cartesian())
+                glVertex3f(*self.tracking_path[i].get_cartesian())
+                glEnd()
+
+
+        else:
+
+            glColor3f(0.06, 0.36, 0.96)
+            glutWireSphere(2, 50, 50)
+            glColor3f(1, 0, 0)
+            glutSolidCone(0.2, 0.4, 50, 50)
 
     def mousePressEvent(self, event):
         if event.buttons() == Qt.MouseButton.LeftButton and self.rect().contains(event.pos()):
@@ -84,6 +120,12 @@ class Rotation3DRender(QOpenGLWidget):
             self.drag_x = x
             self.drag_y = y
             self.update_rot.emit(self.roll_angle, self.pitch_angle, self.yaw_angle)
+
+    def wheelEvent(self, event: QWheelEvent):
+        zoom_factor = event.angleDelta().y() / 1800
+        new_zoom = min(3, max(0, self.zoom + zoom_factor))  # zoom between [0, 4]
+        self.zoom = new_zoom
+        self.update()
 
     def quaternion_to_euler(self, q):
         w, x, y, z = q
@@ -118,3 +160,8 @@ class Rotation3DRender(QOpenGLWidget):
         z = sy * cr * cp - cy * sr * sp
 
         return Quaternion(x=x, y=y, z=z, w=w)
+
+    @Slot()
+    def draw_path(self, path):
+        self.tracking_path = path
+

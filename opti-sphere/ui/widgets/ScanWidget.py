@@ -24,7 +24,7 @@ class ScanWidget(QWidget):
         name_layout = QHBoxLayout()
         name_legend = QLabel(text="Name", objectName="legend")
         self.name = QLineEdit(objectName="name")
-        self.name.setPlaceholderText("Enter the video name")
+        self.name.setPlaceholderText("Enter the scan name")
         self.name.setText(self.scan.title)
         self.name.returnPressed.connect(lambda: self.save_name(self.name.text()))
         name_layout.addWidget(name_legend)
