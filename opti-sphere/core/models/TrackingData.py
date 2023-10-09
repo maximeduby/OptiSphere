@@ -21,10 +21,14 @@ class TrackingData:
             print("ERROR: Must use TrackingData type to calculate color!")
             return None
         speed = self.get_speed(prev_data)
-        print("Speed=", speed)
         alpha = 1/max(1, (speed*0.1))
-        return (1, 1*alpha, 0)
+        return 1, 1 * alpha, 0
 
     def get_cartesian(self):
         (r, theta, phi) = self.coords
         return r*np.sin(phi)*np.cos(theta), r*np.sin(phi)*np.sin(theta), r*np.cos(phi)
+
+    def get_distance(self, p):  # in centimetres
+        r, theta1, phi1 = self.coords
+        _, theta2, phi2 = p.coords
+        return r * np.arccos(np.sin(phi1)*np.sin(phi2) + np.cos(phi1)*np.cos(phi2)*np.cos(theta2-theta1))

@@ -3,7 +3,7 @@ import numpy as np
 from OpenGL.GL import *
 from OpenGL.GLU import gluPerspective
 from OpenGL.GLUT import glutWireSphere, glutSolidCone
-from OpenGL.raw.GLUT import glutSolidSphere
+from OpenGL.raw.GLUT import glutSolidSphere, glutSolidCube
 from PySide6.QtCore import Qt, Signal, Slot
 from PySide6.QtGui import QWheelEvent
 from PySide6.QtOpenGLWidgets import QOpenGLWidget
@@ -30,6 +30,8 @@ class Rotation3DRender(QOpenGLWidget):
         self.tracking_path = []
         self.zoom = 0
 
+        self.sel_points = []
+
     def initializeGL(self) -> None:
         glEnable(GL_DEPTH_TEST)  # for proper 3D rendering and avoid plan overlapping
         glEnable(GL_CULL_FACE)  # does not render what is not visible (improve rendering performance)
@@ -41,8 +43,6 @@ class Rotation3DRender(QOpenGLWidget):
 
     def paintGL(self) -> None:
         # clear scene
-        glEnable(GL_LIGHTING)
-        glEnable(GL_LIGHT0)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
@@ -60,36 +60,39 @@ class Rotation3DRender(QOpenGLWidget):
 
         # Render the sphere
         if self.tracking_mode:
-            glDisable(GL_LIGHTING)
-            glDisable(GL_LIGHT0)
-            glColor3f(1, 1, 1)
+            glColor3f(.85, .85, .85)
             glutSolidSphere(1.99, 50, 50)
 
-            # glPointSize(15)
-            # for i, point in enumerate(self.tracking_path):
-            #     glBegin(GL_POINTS)
-            #     if i == 0:
-            #         glColor3d(0, 0, 1)
-            #     else:
-            #         glColor3d(*point.get_color(point[i-1]))
-            #     glVertex3d(*point.get_cartesian())
-            #     glEnd()
-
+            glDisable(GL_LIGHTING)
+            glDisable(GL_LIGHT0)
             glLineWidth(15)
             for i in range(1, len(self.tracking_path)):
                 glBegin(GL_LINES)
-                glColor3f(*self.tracking_path[i].get_color(self.tracking_path[i-1]))
-                glVertex3f(*self.tracking_path[i-1].get_cartesian())
+                glColor3f(*self.tracking_path[i].get_color(self.tracking_path[i - 1]))
+                glVertex3f(*self.tracking_path[i - 1].get_cartesian())
                 glVertex3f(*self.tracking_path[i].get_cartesian())
                 glEnd()
-
+            glPointSize(20)
+            glBegin(GL_POINTS)
+            glColor3d(0, 0, 1)
+            glVertex3d(*self.tracking_path[0].get_cartesian())
+            glVertex3d(*self.tracking_path[-1].get_cartesian())
+            glEnd()
+            print(self.sel_points)
+            for i in self.sel_points:
+                glBegin(GL_POINTS)
+                glColor3d(1, 0, 0)
+                glVertex3d(*self.tracking_path[i].get_cartesian())
+                glEnd()
+            glEnable(GL_LIGHTING)
+            glEnable(GL_LIGHT0)
 
         else:
-
             glColor3f(0.06, 0.36, 0.96)
             glutWireSphere(2, 50, 50)
-            glColor3f(1, 0, 0)
-            glutSolidCone(0.2, 0.4, 50, 50)
+            # glColor3f(1, 0, 0)
+            # glutSolidCone(0.2, 0.4, 50, 50)
+            self.draw_bug()
 
     def mousePressEvent(self, event):
         if event.buttons() == Qt.MouseButton.LeftButton and self.rect().contains(event.pos()):
@@ -161,7 +164,25 @@ class Rotation3DRender(QOpenGLWidget):
 
         return Quaternion(x=x, y=y, z=z, w=w)
 
-    @Slot()
-    def draw_path(self, path):
-        self.tracking_path = path
+    @staticmethod
+    def draw_bug():
+        # Body
+        glColor3f(1, 0, 0)  # Red color
+        glutSolidSphere(0.5, 20, 20)  # Body
 
+        # Head
+        glPushMatrix()
+        glTranslatef(0, 0.5, 0)
+        glColor3f(0, 1, 0)  # Green color
+        glutSolidSphere(0.3, 20, 20)  # Head
+        glPopMatrix()
+
+        # Legs
+        glColor3f(1, 1, 0)  # yellow color
+        for i in range(-1, 2, 2):
+            for j in range(-1, 2, 2):
+                glPushMatrix()
+                glTranslatef(0.2 * i, -0.2 * j, -0.3,)
+                glScalef(0.1, 0.1, 0.5)
+                glutSolidCube(1)
+                glPopMatrix()

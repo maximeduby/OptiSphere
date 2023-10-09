@@ -1,3 +1,5 @@
+import csv
+import datetime
 import os
 import shutil
 from configparser import ConfigParser
@@ -12,10 +14,12 @@ from PySide6.QtWidgets import (QMainWindow, QApplication, QWidget, QHBoxLayout,
                                QTabWidget, QTabBar, QMessageBox, QMenu, QInputDialog, QDialog)
 
 from config import WINDOW_WIDTH, WINDOW_HEIGHT
+from core.models.TrackingData import TrackingData
 from core.models.SerialCom import SerialCom
 from core.models.Sphere import Sphere
 from ui.dialogs.CheckListDialog import CheckListDialog
 from ui.tabs.ScanTab import ScanTab
+from ui.tabs.TrackTab import TrackTab
 from ui.widgets.SerialDebugger import SerialDebugger
 from ui.tabs.MainTab import MainTab
 
@@ -197,29 +201,53 @@ class MainWindow(QMainWindow):
                 location = os.path.join("recovery", directory)
                 config = ConfigParser()
                 config.read(os.path.join(location, "CONFIG.INI"))
-                nb_frames = int(config['SCAN']['nb_frames'])
-                frames = []
-                frames_files = []
-                for filename in os.listdir(os.path.join(location, "frames")):
-                    f = os.path.join(os.path.join(location, "frames"), filename)
-                    if os.path.isfile(f):
-                        frames_files.append(f)
+                if config.sections()[0] == "SCAN":
+                    nb_frames = int(config['SCAN']['nb_frames'])
+                    frames = []
+                    frames_files = []
+                    for filename in os.listdir(os.path.join(location, "frames")):
+                        f = os.path.join(os.path.join(location, "frames"), filename)
+                        if os.path.isfile(f):
+                            frames_files.append(f)
 
-                if len(frames_files) == nb_frames and nb_frames != 0:
-                    frames_files.sort()
-                    for file in frames_files:
-                        frames.append(cv2.imread(file))
+                    if len(frames_files) == nb_frames and nb_frames != 0:
+                        frames_files.sort()
+                        for file in frames_files:
+                            frames.append(cv2.imread(file))
+                        info = (
+                            config['SCAN']['name'],
+                            config['SCAN']['method'],
+                            config['SCAN']['axis'],
+                            float(config['SCAN']['delta_angle']),
+                            False
+                        )
+                        scan_tab = ScanTab(frames, info[0], info)
+                        scan_tab.scan_widget.update_signal.connect(self.update_name)
+                        self.tabs.addTab(scan_tab, info[0])
+                        self.tabs.setCurrentWidget(scan_tab)
+                        print("import tab succeeded")
+                elif config.sections()[0] == "TRACK":
+                    track = []
+                    with open(f'{location}/data.csv', 'r') as file:
+                        reader = csv.reader(file)
+                        next(reader)
+                        for row in reader:
+
+                            track.append(TrackingData(
+                                tuple([float(i) for i in row[:3]]),
+                                datetime.datetime.strptime(row[3], '%Y-%m-%d %H:%M:%S.%f'))
+                            )
+                        if int(config['TRACK']["nb_points"]) != len(track):
+                            print("Error when loading data: Incorrect number of track points")
                     info = (
-                        config['SCAN']['name'],
-                        config['SCAN']['method'],
-                        config['SCAN']['axis'],
-                        float(config['SCAN']['delta_angle']),
-                        False
+                        config['TRACK']['name'],
+                        config['TRACK']['mode'],
+                        config['TRACK']['description']
                     )
-                    scan_tab = ScanTab(frames, info[0], info)
-                    scan_tab.scan_widget.update_signal.connect(self.update_name)
-                    self.tabs.addTab(scan_tab, info[0])
-                    self.tabs.setCurrentWidget(scan_tab)
+                    track_tab = TrackTab(track, info[0], info)
+                    track_tab.track_widget.update_signal.connect(self.update_name)
+                    self.tabs.addTab(track_tab, info[0])
+                    self.tabs.setCurrentWidget(track_tab)
                     print("import tab succeeded")
 
             except FileExistsError or FileNotFoundError as e:

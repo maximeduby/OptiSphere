@@ -281,9 +281,23 @@ QLineEdit#command:focus {
     border: 1px solid #CCCCCC; /* Border color when the QLineEdit is focused */
 }
 
-QTextEdit#console{
+QTextEdit{
     background-color: hsl(0, 0, 17%);
     color:#fff;
     font-size: 16px;
     border-radius: 10px;
+    padding: 5px;
+}
+
+QTableView{
+    background-color: #201F20;
+}
+QTableWidget::item {
+    color: #CCCCCC;                    
+    background-color: hsl(0, 0, 17%);         
+    border-radius: 3px;
+}
+
+QTableWidget::item:selected {
+    background-color: #5e5e5e;
 }
