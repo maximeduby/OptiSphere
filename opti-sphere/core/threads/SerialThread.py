@@ -16,7 +16,6 @@ class SerialThread(QThread):
             self.response_signal.emit(self.ser.ERROR, b"Serial communication timeout"),
             self.ser.signal_holder.print_signal.emit(self.ser.ERROR, b"Serial communication timeout")
         ])
-        self.timer.start(10000)
 
     def run(self):
         try:
@@ -48,4 +47,5 @@ class SerialThread(QThread):
 
     def stop(self):
         self.reading = False
+        self.timer.stop()
         self.wait()

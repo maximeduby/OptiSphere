@@ -5,6 +5,7 @@ from datetime import datetime
 
 import cv2
 from PySide6.QtCore import QThread, Slot, Signal
+from PySide6.QtWidgets import QMessageBox
 
 
 class ScanningThread(QThread):
@@ -23,21 +24,28 @@ class ScanningThread(QThread):
         self.is_auto = is_auto
 
         self.frames = []
-        self.current_angle = -180
+        self.current_angle = 0
         self.directory = "empty"
         self.done = False
 
     def run(self):
         self.wnd.threads.append(self)
         self.generate_recovery_directory()
-        # self.wnd.ser.signal_holder.done_signal.connect(self.set_done())
-        while self.running and self.current_angle <= 180:
-            self.rotate(self.axis)
-            self.progress_signal.emit("Scanning...", int((self.current_angle + 180) / 3.6))
-            # time.sleep(1.5)
-            self.add_frame(self.wnd.main_tab.th.frame)
-            self.current_angle += self.delta_angle
-            print(self.current_angle)
+        while self.running and self.current_angle <= 360:
+            if not self.is_auto:
+                dlg = QMessageBox.question(self.wnd, "Scanning", "Ready to save frame?", QMessageBox.StandardButton.Yes, QMessageBox.StandardButton.Cancel)
+                if dlg == QMessageBox.StandardButton.Yes:
+                    self.progress_signal.emit("Scanning...", int(self.current_angle / 3.6))
+                    self.add_frame(self.wnd.main_tab.th.frame)
+                    self.current_angle += self.delta_angle
+                else:
+                    print("oops")
+            else:
+                self.rotate(self.axis)
+                self.progress_signal.emit("Scanning...", int(self.current_angle / 3.6))
+                self.add_frame(self.wnd.main_tab.th.frame)
+                self.current_angle += self.delta_angle
+                print(self.current_angle)
         info = (
             self.directory,
             self.method,
@@ -50,11 +58,11 @@ class ScanningThread(QThread):
 
     def rotate(self, axis):
         if axis == "Roll":
-            self.wnd.ser.send_instruction(self.current_angle, 0, 0)
-            self.wnd.sphere.set_rotation((self.current_angle, 0, 0))
+            self.wnd.ser.send_instruction((self.wnd.sphere.roll + self.current_angle + 180) % 360 - 180, 0, 0)
+            self.wnd.sphere.set_rotation(((self.wnd.sphere.roll + self.current_angle + 180) % 360 - 180, 0, 0))
         elif axis == "Pitch":
-            self.wnd.ser.send_instruction(0, self.current_angle, 0)
-            self.wnd.sphere.set_rotation((0, self.current_angle, 0))
+            self.wnd.ser.send_instruction(0, (self.wnd.sphere.pitch + self.current_angle + 180) % 360 - 180, 0)
+            self.wnd.sphere.set_rotation((0, (self.wnd.sphere.pitch + self.current_angle + 180) % 360 - 180, 0))
         self.__waiting_loop()
 
     @Slot()

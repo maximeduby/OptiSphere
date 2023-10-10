@@ -80,8 +80,8 @@ class TrackingTab(QWidget):
             self.box = None
             if len(self.track) > 2:
                 title = f"track{self.track_counter}"
-                info = (self.mode, self.desc.toPlainText())
                 self.generate_recovery_directory()
+                info = (self.directory, self.mode, self.desc.toPlainText())
                 track_tab = TrackTab(self.track, title, info)
                 track_tab.track_widget.update_signal.connect(self.wnd.update_name)
                 self.wnd.tabs.addTab(track_tab, title)

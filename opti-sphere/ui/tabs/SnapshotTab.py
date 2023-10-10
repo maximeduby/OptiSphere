@@ -30,3 +30,6 @@ class SnapshotTab(Tab):
         w = self.frame.shape[1]
         h = self.frame.shape[0]
         return f"{w} × {h}"
+
+    def resizeEvent(self, event):
+        self.snapshot.set_image(self.frame)

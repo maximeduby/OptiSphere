@@ -86,7 +86,6 @@ class SerialCom(serial.Serial):
         elif category == self.ERROR:
             error = content.decode('utf-8')
             print("Error:", error)
-            self.th.timer.stop()
             self.th.stop()
             QMessageBox.critical(self.wnd, "Error", error, QMessageBox.StandardButton.Ok)
             self.wnd.sphere.undo_rot()

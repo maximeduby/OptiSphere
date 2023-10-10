@@ -51,7 +51,7 @@ class TrackWidget(QWidget):
         description = QTextEdit(objectName="desc")
         description.setReadOnly(True)
         description.setTextColor("#8c8c8c")
-        description.setText(self.track.info[2])
+        description.setText(self.track.info[2] if self.track.info[2] else "No description")
         desc_layout.addWidget(desc_legend)
         desc_layout.addWidget(description)
 

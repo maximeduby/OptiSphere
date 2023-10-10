@@ -108,3 +108,6 @@ class TimelapseTab(Tab):
         for frame in self.frames:
             output.write(frame)
         output.release()
+
+    def resizeEvent(self, event):
+        self.timelapse.set_image(self.frames[self.current_frame])

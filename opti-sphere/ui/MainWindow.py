@@ -87,6 +87,10 @@ class MainWindow(QMainWindow):
                                            QMessageBox.StandardButton.Yes,
                                            QMessageBox.StandardButton.Cancel)
             if confirm == QMessageBox.StandardButton.Yes:
+                tab = self.tabs.widget(index)
+                if tab.__class__.__name__ in ["ScanTab", "TrackTab"]:
+                    shutil.rmtree(os.path.join("recovery", tab.info[0]))
+
                 self.tabs.removeTab(index)
                 self.tabs.setCurrentWidget(self.main_tab)
 
@@ -222,7 +226,6 @@ class MainWindow(QMainWindow):
                         scan_tab.scan_widget.update_signal.connect(self.update_name)
                         self.tabs.addTab(scan_tab, info[0])
                         self.tabs.setCurrentWidget(scan_tab)
-                        print("import tab succeeded")
                 elif config.sections()[0] == "TRACK":
                     track = []
                     with open(f'{location}/data.csv', 'r') as file:
@@ -245,7 +248,6 @@ class MainWindow(QMainWindow):
                     track_tab.track_widget.update_signal.connect(self.update_name)
                     self.tabs.addTab(track_tab, info[0])
                     self.tabs.setCurrentWidget(track_tab)
-                    print("import tab succeeded")
 
             except FileExistsError or FileNotFoundError as e:
                 print(e)

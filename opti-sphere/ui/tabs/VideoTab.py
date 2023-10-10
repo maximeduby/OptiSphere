@@ -105,3 +105,6 @@ class VideoTab(Tab):
         for frame in self.frames:
             output.write(frame)
         output.release()
+
+    def resizeEvent(self, event):
+        self.video.set_image(self.frames[self.current_frame])

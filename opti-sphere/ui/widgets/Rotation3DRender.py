@@ -9,7 +9,6 @@ from PySide6.QtGui import QWheelEvent
 from PySide6.QtOpenGLWidgets import QOpenGLWidget
 from pyquaternion import Quaternion
 
-
 class Rotation3DRender(QOpenGLWidget):
     update_rot = Signal(int, int, int)
 
@@ -60,7 +59,7 @@ class Rotation3DRender(QOpenGLWidget):
 
         # Render the sphere
         if self.tracking_mode:
-            glColor3f(.85, .85, .85)
+            glColor3f(.65, .65, .65)
             glutSolidSphere(1.99, 50, 50)
 
             glDisable(GL_LIGHTING)
