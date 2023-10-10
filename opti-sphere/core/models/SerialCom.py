@@ -3,6 +3,7 @@ import sys
 
 import serial
 from PySide6.QtCore import Signal, QObject
+from PySide6.QtWidgets import QMessageBox
 
 from config import BAUD_RATE
 from core.threads.SerialThread import SerialThread
@@ -18,7 +19,7 @@ class SerialCom(serial.Serial):
     COMMAND = b'\x21'  # command to RPi
     RESPONSE = b'\x22'  # response from RPi
     ERROR = b'\x23'  # Error from RPi
-    ALL_DONE = b'\x24' # Transmission can stop
+    ALL_DONE = b'\x24'  # Transmission can stop
 
     done_signal = Signal(bool)
     is_done = False
@@ -85,6 +86,11 @@ class SerialCom(serial.Serial):
         elif category == self.ERROR:
             error = content.decode('utf-8')
             print("Error:", error)
+            self.th.timer.stop()
+            self.th.stop()
+            QMessageBox.critical(self.wnd, "Error", error, QMessageBox.StandardButton.Ok)
+            self.wnd.sphere.undo_rot()
+            self.reset_input_buffer()
 
 
 class SignalHolder(QObject):

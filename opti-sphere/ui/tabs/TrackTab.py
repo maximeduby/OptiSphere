@@ -15,18 +15,17 @@ from ui.widgets.TrackWidget import TrackWidget
 class TrackTab(Tab):
     def __init__(self, track, title, info):
         super().__init__()
-        # self.layout().setAlignment(Qt.Alignment.AlignCenter)
         self.track = track
         self.title = title
         self.info = info
 
         self.spatial_tracking = Rotation3DRender(tracking_mode=True)
+        self.spatial_tracking.tracking_path = track
 
         self.track_widget = TrackWidget(self)
 
         self.scene_layout.addWidget(self.spatial_tracking)
         self.sidebar_layout.addWidget(self.track_widget)
-        print(self.track)
 
     def save(self):
         location = QFileDialog.getExistingDirectory(None, "Choose Location")

@@ -78,7 +78,6 @@ class Rotation3DRender(QOpenGLWidget):
             glVertex3d(*self.tracking_path[0].get_cartesian())
             glVertex3d(*self.tracking_path[-1].get_cartesian())
             glEnd()
-            print(self.sel_points)
             for i in self.sel_points:
                 glBegin(GL_POINTS)
                 glColor3d(1, 0, 0)
@@ -90,8 +89,6 @@ class Rotation3DRender(QOpenGLWidget):
         else:
             glColor3f(0.06, 0.36, 0.96)
             glutWireSphere(2, 50, 50)
-            # glColor3f(1, 0, 0)
-            # glutSolidCone(0.2, 0.4, 50, 50)
             self.draw_bug()
 
     def mousePressEvent(self, event):
@@ -167,18 +164,18 @@ class Rotation3DRender(QOpenGLWidget):
     @staticmethod
     def draw_bug():
         # Body
-        glColor3f(1, 0, 0)  # Red color
-        glutSolidSphere(0.5, 20, 20)  # Body
+        glColor3f(1, 0, 0)
+        glutSolidSphere(0.5, 20, 20)
 
         # Head
         glPushMatrix()
         glTranslatef(0, 0.5, 0)
-        glColor3f(0, 1, 0)  # Green color
-        glutSolidSphere(0.3, 20, 20)  # Head
+        glColor3f(0, 1, 0)
+        glutSolidSphere(0.3, 20, 20)
         glPopMatrix()
 
         # Legs
-        glColor3f(1, 1, 0)  # yellow color
+        glColor3f(1, 1, 0)
         for i in range(-1, 2, 2):
             for j in range(-1, 2, 2):
                 glPushMatrix()

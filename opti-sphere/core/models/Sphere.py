@@ -10,9 +10,15 @@ class Sphere(QObject):
         self.pitch = 0
         self.yaw = 0
 
+        self.prev_rot = (0, 0, 0)
+
     def get_rotation(self):
         return self.roll, self.pitch, self.yaw
 
     def set_rotation(self, rot):
+        self.prev_rot = (self.get_rotation())
         self.roll, self.pitch, self.yaw = rot
         self.update_rot.emit(*rot)
+
+    def undo_rot(self):
+        self.set_rotation(self.prev_rot)

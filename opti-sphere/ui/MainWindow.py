@@ -107,8 +107,8 @@ class MainWindow(QMainWindow):
 
     def init_menu_bar(self):
         # file menu
+        self.file_menu.addAction("Open", lambda: self.open_file())
         self.file_menu.addAction('Save', lambda: self.tabs.currentWidget().save())
-        self.file_menu.addAction('Quit', QApplication.instance().quit())
         self.file_menu.actions()[1].setEnabled(False)
 
         # camera menu
@@ -118,11 +118,8 @@ class MainWindow(QMainWindow):
         self.cam_devices_group.actions()[0].setChecked(True)
 
         # tools menu
-        serial_tool = QMenu("Serial Communication")
-        serial_tool.addAction('Connect to serial', self.open_serial_setup)
-        serial_tool.addAction('Serial Debugger', self.open_serial_debugger)
-        self.tools_menu.addMenu(serial_tool)
-
+        self.tools_menu.addAction('Connect to serial', self.open_serial_setup)
+        self.tools_menu.addAction('Serial Debugger', self.open_serial_debugger)
     def update_camera_menu(self):
         for action in self.cam_devices_group.actions():
             self.cam_menu.removeAction(action)
@@ -252,3 +249,6 @@ class MainWindow(QMainWindow):
 
             except FileExistsError or FileNotFoundError as e:
                 print(e)
+
+    def open_file(self):
+        print("open")
