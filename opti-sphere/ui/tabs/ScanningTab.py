@@ -2,6 +2,7 @@ from PySide6.QtCore import Slot
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QComboBox, QPushButton, QSpinBox, \
     QDoubleSpinBox, QCheckBox, QFrame, QProgressBar
 
+from core.PathManager import get_path
 from core.threads.ScanningThread import ScanningThread
 from ui.tabs.ScanTab import ScanTab
 from ui.widgets.ProgressWidget import ProgressWidget
@@ -20,6 +21,43 @@ class ScanningTab(QWidget):
         method_legend = QLabel(text='Method', objectName='legend')
         method_legend.setFixedWidth(60)
         self.method = QComboBox()
+        self.method.setStyleSheet(
+            """
+            QComboBox {
+                border-radius: 10px;
+                background-color: hsl(0, 0, 24%);
+                padding: 5px;
+                padding-left: 10px;
+                color: white;
+                border-style: none;
+            }
+            
+            QComboBox::drop-down {
+                width: 25px;
+                border: none;
+                border-top-right-radius: 10px;
+                border-bottom-right-radius: 10px;
+            }
+            
+            QComboBox::drop-down:on {
+                background-color: hsl(0, 0%, 17%);
+                width: 25px;
+            }
+            
+            QComboBox::down-arrow {
+                image: url(./icons/caret-down-icon.svg);
+                width: 25;
+            }
+            
+            QComboBox QAbstractItemView{
+                background-color: hsl(0, 0, 17%);
+                selection-color: white;
+                margin: 0;
+                padding: 0;
+                border-radius: 5px;
+            }
+            """
+        )
         self.method.view().parentWidget().setStyleSheet('background-color: #151415; border-radius: 5px; padding: 1px;')
         self.method.addItems(["Frame by Frame", "Continuous Video"])
         self.method.activated.connect(self.change_method)
@@ -39,6 +77,28 @@ class ScanningTab(QWidget):
         auto_legend = QLabel(text="Auto Mode", objectName="legend")
         auto_legend.setFixedWidth(80)
         self.is_auto = QCheckBox(objectName="switch")
+        self.is_auto.setStyleSheet(
+            f"""
+            QCheckBox#switch::indicator{{
+                width: 30px;
+                height: 19px;
+                border-radius: 9px;
+                /* padding: 2px; */
+            
+            }}
+            
+            QCheckBox#switch::indicator:unchecked{{
+                image: url({get_path("resources/icons/toggle-off-icon.svg")});
+            }}
+            QCheckBox#switch::indicator:hover{{
+                background-color: hsl(0, 0%, 31%);
+            }}
+            
+            QCheckBox#switch::indicator:checked{{
+                image: url({get_path("resources/icons/toggle-on-icon.svg")});
+            }}
+            """
+        )
         self.is_auto.setChecked(True)
         frame_method_layout.addWidget(angle_legend)
         frame_method_layout.addWidget(self.angle)

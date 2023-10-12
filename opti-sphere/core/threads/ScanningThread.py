@@ -7,6 +7,8 @@ import cv2
 from PySide6.QtCore import QThread, Slot, Signal
 from PySide6.QtWidgets import QMessageBox
 
+from core.PathManager import get_path
+
 
 class ScanningThread(QThread):
     scan_signal = Signal(object, object)
@@ -68,12 +70,12 @@ class ScanningThread(QThread):
     @Slot()
     def add_frame(self, frame):
         self.frames.append(frame)
-        cv2.imwrite("recovery/" + self.directory + "/frames/" + self.__get_title(), frame)
+        cv2.imwrite(get_path("recovery/" + self.directory + "/frames/" + self.__get_title()), frame)
 
     def generate_recovery_directory(self):
-        self.directory = "scan_" + datetime.now().strftime("%Y%m%d_%H-%M-%S")
+        self.directory = get_path("scan_" + datetime.now().strftime("%Y%m%d_%H-%M-%S"))
         try:
-            location = os.path.join("recovery", self.directory)
+            location = os.path.join(get_path("resources"), self.directory)
             os.mkdir(os.path.join(location))
             os.mkdir(os.path.join(location, "frames"))
             config = ConfigParser()
@@ -110,5 +112,4 @@ class ScanningThread(QThread):
 
     def stop(self):
         self.running = False
-        print("stopstopstopstopstopstopstopstopstopstopstopstopstop")
         self.wait()

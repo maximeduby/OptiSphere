@@ -11,9 +11,10 @@ from PySide6.QtCore import Slot
 from PySide6.QtGui import QScreen, QActionGroup, QAction
 from PySide6.QtMultimedia import QMediaDevices
 from PySide6.QtWidgets import (QMainWindow, QApplication, QWidget, QHBoxLayout,
-                               QTabWidget, QTabBar, QMessageBox, QMenu, QInputDialog, QDialog)
+                               QTabWidget, QTabBar, QMessageBox, QInputDialog, QDialog)
 
 from config import WINDOW_WIDTH, WINDOW_HEIGHT
+from core.PathManager import get_path
 from core.models.TrackingData import TrackingData
 from core.models.SerialCom import SerialCom
 from core.models.Sphere import Sphere
@@ -89,7 +90,7 @@ class MainWindow(QMainWindow):
             if confirm == QMessageBox.StandardButton.Yes:
                 tab = self.tabs.widget(index)
                 if tab.__class__.__name__ in ["ScanTab", "TrackTab"]:
-                    shutil.rmtree(os.path.join("recovery", tab.info[0]))
+                    shutil.rmtree(os.path.join(get_path("recovery"), tab.info[0]))
 
                 self.tabs.removeTab(index)
                 self.tabs.setCurrentWidget(self.main_tab)
@@ -186,7 +187,7 @@ class MainWindow(QMainWindow):
             QMessageBox(self).critical(self, "Error", f"Could not find any device for serial communication")
 
     def fetch_recovery(self):
-        directories = next(os.walk('recovery'))[1]
+        directories = next(os.walk(get_path('recovery')))[1]
         if not directories:
             print("Nothing in recovery folder")
             return
@@ -196,10 +197,10 @@ class MainWindow(QMainWindow):
             recovery_list = dialog.choices
         for directory in directories:
             if not (directory in recovery_list):
-                shutil.rmtree(os.path.join("recovery", directory))
+                shutil.rmtree(os.path.join(get_path("recovery"), directory))
         for directory in recovery_list:
             try:
-                location = os.path.join("recovery", directory)
+                location = os.path.join(get_path("recovery"), directory)
                 config = ConfigParser()
                 config.read(os.path.join(location, "CONFIG.INI"))
                 if config.sections()[0] == "SCAN":

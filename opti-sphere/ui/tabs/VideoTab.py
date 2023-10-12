@@ -3,6 +3,7 @@ from PySide6.QtCore import QTimer, Slot, Qt
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QHBoxLayout, QPushButton, QLabel, QSlider, QFileDialog, QWidget
 
+from core.PathManager import get_path
 from ui.tabs.Tab import Tab
 from ui.widgets.ImageViewer import ImageViewer
 from ui.widgets.VideoWidget import VideoWidget
@@ -25,7 +26,7 @@ class VideoTab(Tab):
         video_player = QWidget(objectName="widget-container")
         video_control = QHBoxLayout()
         self.play_btn = QPushButton(objectName='video_control_btn')
-        self.play_btn.setIcon(QIcon("resources/icons/play-icon.svg"))
+        self.play_btn.setIcon(QIcon(get_path("resources/icons/play-icon.svg")))
         self.play_btn.clicked.connect(self.toggle_play_pause)
         self.timestamp = QLabel(text="00:00", objectName='timestamp')
         self.slider = QSlider(Qt.Orientation.Horizontal)
@@ -50,10 +51,10 @@ class VideoTab(Tab):
     def toggle_play_pause(self):
         if self.is_running:
             self.is_running = False
-            self.play_btn.setIcon(QIcon("resources/icons/play-icon.svg"))
+            self.play_btn.setIcon(QIcon(get_path("resources/icons/play-icon.svg")))
         else:
             self.is_running = True
-            self.play_btn.setIcon(QIcon("resources/icons/pause-icon.svg"))
+            self.play_btn.setIcon(QIcon(get_path("resources/icons/pause-icon.svg")))
             if self.current_frame >= len(self.frames):
                 self.current_frame = 0
             if not self.timer.isActive():

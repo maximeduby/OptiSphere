@@ -3,6 +3,7 @@ from PySide6.QtCore import Qt, QTimer, Slot
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QPushButton, QLabel, QSlider, QHBoxLayout, QFileDialog, QWidget
 
+from core.PathManager import get_path
 from ui.tabs.Tab import Tab
 from ui.widgets.ImageViewer import ImageViewer
 from ui.widgets.TimelapseWidget import TimelapseWidget
@@ -51,10 +52,10 @@ class TimelapseTab(Tab):
     def toggle_play_pause(self):
         if self.is_running:
             self.is_running = False
-            self.play_btn.setIcon(QIcon("resources/icons/play-icon.svg"))
+            self.play_btn.setIcon(QIcon(get_path("resources/icons/play-icon.svg")))
         else:
             self.is_running = True
-            self.play_btn.setIcon(QIcon("resources/icons/pause-icon.svg"))
+            self.play_btn.setIcon(QIcon(get_path("resources/icons/pause-icon.svg")))
             if self.current_frame >= len(self.frames) - 1:
                 self.current_frame = 0
             if not self.timer.isActive():
