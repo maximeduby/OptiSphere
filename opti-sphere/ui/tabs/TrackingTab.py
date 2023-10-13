@@ -8,7 +8,7 @@ import numpy as np
 from PySide6.QtCore import Slot
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QPushButton, QHBoxLayout, QLabel, QComboBox, QLineEdit, QTextEdit
 
-from core.PathManager import get_path
+
 from core.models.TrackingData import TrackingData
 from ui.tabs.TrackTab import TrackTab
 
@@ -136,9 +136,9 @@ class TrackingTab(QWidget):
             self.can_rotate = True
 
     def generate_recovery_directory(self):
-        self.directory = get_path("track_" + datetime.datetime.now().strftime("%Y%m%d_%H-%M-%S"))
+        self.directory = "track_" + datetime.datetime.now().strftime("%Y%m%d_%H-%M-%S")
         try:
-            location = os.path.join(get_path("recovery"), self.directory)
+            location = os.path.join("recovery", self.directory)
             os.mkdir(os.path.join(location))
             config = ConfigParser()
             config['TRACK'] = {

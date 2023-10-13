@@ -1,11 +1,9 @@
 import os
 import shutil
 
-import cv2
 from PySide6.QtCore import Qt, Slot
 from PySide6.QtWidgets import QWidget, QHBoxLayout, QLabel, QSlider, QFileDialog
 
-from core.PathManager import get_path
 from ui.tabs.Tab import Tab
 from ui.widgets.ImageViewer import ImageViewer
 from ui.widgets.ScanWidget import ScanWidget
@@ -54,6 +52,6 @@ class ScanTab(Tab):
     def save(self):
         location = QFileDialog.getExistingDirectory(None, "Choose Location")
         new_directory = os.path.join(location, self.title)
-        old_directory = os.path.join(get_path("recovery"), self.info[0])
+        old_directory = os.path.join("recovery", self.info[0])
         shutil.move(old_directory, new_directory)
 

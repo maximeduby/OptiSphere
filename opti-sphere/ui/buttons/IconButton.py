@@ -3,13 +3,13 @@ from PySide6.QtGui import QPixmap, QPainter, QIcon
 from PySide6.QtSvg import QSvgRenderer
 from PySide6.QtWidgets import QPushButton
 
-from core.PathManager import get_path
+
 
 
 class IconButton(QPushButton):
     def __init__(self, icon_path):
         super().__init__()
-        self.icon_path = get_path(icon_path)
+        self.icon_path = icon_path
         self.set_icon_color("#FFFFFF")
 
     def set_icon_color(self, color):
