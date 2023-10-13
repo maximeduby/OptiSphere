@@ -187,6 +187,9 @@ class MainWindow(QMainWindow):
             QMessageBox(self).critical(self, "Error", f"Could not find any device for serial communication")
 
     def fetch_recovery(self):
+        if not os.path.exists("recovery"):
+            os.makedirs("recovery")
+            return
         directories = next(os.walk('recovery'))[1]
         if not directories:
             print("Nothing in recovery folder")
