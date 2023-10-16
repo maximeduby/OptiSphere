@@ -8,8 +8,6 @@ from PySide6.QtCore import QThread, Slot, Signal
 from PySide6.QtWidgets import QMessageBox
 
 
-
-
 class ScanningThread(QThread):
     scan_signal = Signal(object, object)
     progress_signal = Signal(str, int)
@@ -29,25 +27,28 @@ class ScanningThread(QThread):
         self.current_angle = 0
         self.directory = "empty"
         self.done = False
+        self.ready_for_frame = False
 
     def run(self):
         self.wnd.threads.append(self)
         self.generate_recovery_directory()
+        self.add_frame(self.wnd.main_tab.th.frame)
         while self.running and self.current_angle <= 360:
-            if not self.is_auto:
-                dlg = QMessageBox.question(self.wnd, "Scanning", "Ready to save frame?", QMessageBox.StandardButton.Yes, QMessageBox.StandardButton.Cancel)
-                if dlg == QMessageBox.StandardButton.Yes:
-                    self.progress_signal.emit("Scanning...", int(self.current_angle / 3.6))
-                    self.add_frame(self.wnd.main_tab.th.frame)
-                    self.current_angle += self.delta_angle
-                else:
-                    print("oops")
+            if self.current_angle == 0:
+                flag = 0
+            elif self.current_angle + self.delta_angle > 360:
+                flag = 2
             else:
-                self.rotate(self.axis)
-                self.progress_signal.emit("Scanning...", int(self.current_angle / 3.6))
-                self.add_frame(self.wnd.main_tab.th.frame)
-                self.current_angle += self.delta_angle
-                print(self.current_angle)
+                flag = 1
+            self.current_angle += self.delta_angle
+            print(self.current_angle)
+
+            self.rotate(self.axis, flag)
+            self.progress_signal.emit("Scanning...", int(self.current_angle / 3.6))
+            while self.running and not self.is_auto:
+                if self.ready_for_frame:
+                    break
+            self.add_frame(self.wnd.main_tab.th.frame)
         info = (
             self.directory,
             self.method,
@@ -58,12 +59,16 @@ class ScanningThread(QThread):
         self.scan_signal.emit(self.frames, info)
         self.wnd.threads.remove(self)
 
-    def rotate(self, axis):
+    def rotate(self, axis, flag):
         if axis == "Roll":
-            self.wnd.ser.send_instruction((self.wnd.sphere.roll + self.current_angle + 180) % 360 - 180, 0, 0)
+            self.wnd.ser.send_instruction(
+                self.wnd.ser.SCAN, "roll", (self.wnd.sphere.roll + self.current_angle + 180) % 360 - 180, flag
+            )
             self.wnd.sphere.set_rotation(((self.wnd.sphere.roll + self.current_angle + 180) % 360 - 180, 0, 0))
         elif axis == "Pitch":
-            self.wnd.ser.send_instruction(0, (self.wnd.sphere.pitch + self.current_angle + 180) % 360 - 180, 0)
+            self.wnd.ser.send_instruction(
+                self.wnd.ser.SCAN, "pitch", (self.wnd.sphere.pitch + self.current_angle + 180) % 360 - 180, flag
+            )
             self.wnd.sphere.set_rotation((0, (self.wnd.sphere.pitch + self.current_angle + 180) % 360 - 180, 0))
         self.__waiting_loop()
 
@@ -81,7 +86,7 @@ class ScanningThread(QThread):
             config = ConfigParser()
             config['SCAN'] = {
                 'name': self.directory,
-                'nb_frames': str(int(360/self.delta_angle + 1)),
+                'nb_frames': str(int(360 / self.delta_angle + 1)),
                 'method': self.method,
                 'axis': self.axis,
                 'delta_angle': str(self.delta_angle),

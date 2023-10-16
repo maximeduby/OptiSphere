@@ -120,7 +120,7 @@ class RotationTab(QWidget):
             self.pitch_spinbox.value(),
             self.yaw_spinbox.value()
         )
-        self.wnd.ser.send_instruction(*rot)
+        self.wnd.ser.send_instruction(self.wnd.ser.ROT, *rot)
         self.wnd.sphere.set_rotation(rot)
         self.apply_rot_btn.setEnabled(False)
 

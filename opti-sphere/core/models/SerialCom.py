@@ -20,6 +20,8 @@ class SerialCom(serial.Serial):
     RESPONSE = b'\x22'  # response from RPi
     ERROR = b'\x23'  # Error from RPi
     ALL_DONE = b'\x24'  # Transmission can stop
+    ROT = b'\x25'  # rotation mode for instruction
+    SCAN = b'\x26'  # scan mode for instruction
 
     done_signal = Signal(bool)
     is_done = False
@@ -58,9 +60,9 @@ class SerialCom(serial.Serial):
                 pass
         return result
 
-    def send_instruction(self, roll, pitch, yaw):
-        roll, pitch, yaw = (bytes(str(i), 'utf-8') for i in (roll, pitch, yaw))
-        packet = self.SOP + self.INSTRUCTION + roll + self.SEP + pitch + self.SEP + yaw + self.EOP
+    def send_instruction(self, mode, arg1, arg2, arg3):
+        arg1, arg2, arg3 = (bytes(str(i), 'utf-8') for i in (arg1, arg2, arg3))
+        packet = self.SOP + self.INSTRUCTION + mode + self.SEP + arg1 + self.SEP + arg2 + self.SEP + arg3 + self.EOP
 
         if self.th and self.th.isRunning():
             self.th.stop()

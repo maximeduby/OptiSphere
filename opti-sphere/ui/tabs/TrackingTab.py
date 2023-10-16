@@ -120,12 +120,12 @@ class TrackingTab(QWidget):
         if self.can_rotate and (abs(distance[0]) > self.tracking_offset or abs(distance[1]) > self.tracking_offset):
             rot = self.wnd.sphere.get_rotation()
             new_rot = (
-                round(rot[0] + (distance[0] / self.pix_deg_ratio), 1),
-                round(rot[1] + (distance[1] / self.pix_deg_ratio), 1),
+                -round(rot[0] + (distance[0] / self.pix_deg_ratio), 1),
+                -round(rot[1] + (distance[1] / self.pix_deg_ratio), 1),
                 rot[2]
             )
             self.can_rotate = False
-            self.wnd.ser.send_instruction(*new_rot)
+            self.wnd.ser.send_instruction(self.wnd.ser.ROT, *new_rot)
             self.wnd.sphere.set_rotation(new_rot)
 
             self.track.append(

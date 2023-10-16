@@ -2,12 +2,13 @@ import numpy as np
 
 from OpenGL.GL import *
 from OpenGL.GLU import gluPerspective
-from OpenGL.GLUT import glutWireSphere, glutSolidCone
+from OpenGL.GLUT import glutWireSphere
 from OpenGL.raw.GLUT import glutSolidSphere, glutSolidCube
-from PySide6.QtCore import Qt, Signal, Slot
+from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QWheelEvent
 from PySide6.QtOpenGLWidgets import QOpenGLWidget
 from pyquaternion import Quaternion
+
 
 class Rotation3DRender(QOpenGLWidget):
     update_rot = Signal(int, int, int)
@@ -50,6 +51,7 @@ class Rotation3DRender(QOpenGLWidget):
         # set scene
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
+        glRotatef(-90, 0, 0, 1)
         glTranslatef(0, 0, -6 + self.zoom)  # move camera position
 
         # rotate the sphere
@@ -101,10 +103,10 @@ class Rotation3DRender(QOpenGLWidget):
         x = event.x() * ratio - 100
         y = (self.height() - event.y()) * ratio - 100
         if (x, y) != (self.drag_x, self.drag_y):
-            vec1 = (x - self.drag_x, y - self.drag_y, 0)
+            vec1 = (self.drag_y - y, x - self.drag_x, 0.0)
             norm = np.linalg.norm(vec1)
-            vec1 = vec1 * 1 / norm
-            vec2 = (0, 0, 1)
+            vec1 = tuple(i / norm for i in vec1)
+            vec2 = (0.0, 0.0, 1.0)
 
             axis = np.cross(vec1, vec2)
             angle = self.speed * norm
@@ -168,7 +170,7 @@ class Rotation3DRender(QOpenGLWidget):
 
         # Head
         glPushMatrix()
-        glTranslatef(0, 0.5, 0)
+        glTranslatef(-0.5, 0, 0)
         glColor3f(0, 1, 0)
         glutSolidSphere(0.3, 20, 20)
         glPopMatrix()
@@ -178,7 +180,7 @@ class Rotation3DRender(QOpenGLWidget):
         for i in range(-1, 2, 2):
             for j in range(-1, 2, 2):
                 glPushMatrix()
-                glTranslatef(0.2 * i, -0.2 * j, -0.3,)
+                glTranslatef(0.2 * i, -0.2 * j, -0.3, )
                 glScalef(0.1, 0.1, 0.5)
                 glutSolidCube(1)
                 glPopMatrix()

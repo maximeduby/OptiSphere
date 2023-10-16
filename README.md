@@ -4,6 +4,8 @@
 
 ## Installation
 
+> **_Note:_** *You will need Python 3.11 and PIP3*
+
 1. Clone this repository```git clone https://github.com/maximeduby/Opti-Sphere.git```
 2. Change directory```cd Opti-Sphere/```
 3. Create new virtual environment```python3 -m venv venv```

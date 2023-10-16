@@ -34,7 +34,7 @@ class ScanningTab(QWidget):
         angle_legend.setFixedWidth(60)
         self.angle = QDoubleSpinBox()
         self.angle.setDecimals(1)
-        self.angle.setRange(0.0, 180.0)
+        self.angle.setRange(0.0, 90.0)
         self.angle.setValue(5.0)
         self.angle.setSuffix("°")
         auto_legend = QLabel(text="Auto Mode", objectName="legend")
