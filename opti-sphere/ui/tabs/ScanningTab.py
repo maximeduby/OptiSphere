@@ -1,4 +1,5 @@
 from PySide6.QtCore import Slot
+from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QComboBox, QPushButton, QSpinBox, \
     QDoubleSpinBox, QCheckBox, QFrame, QProgressBar
 
@@ -66,18 +67,38 @@ class ScanningTab(QWidget):
         self.scan_progress = ProgressWidget()
         self.scan_progress.setHidden(True)
 
+        self.scan_widget = QWidget()
+        scan_layout = QHBoxLayout()
+        scan_layout.setContentsMargins(0, 10, 0, 10)
+        self.capture_btn = QPushButton(text="Capture Frame", objectName="action-btn")
+        self.capture_btn.clicked.connect(self.set_ready_for_frame)
+        self.switch_auto_btn = QPushButton(text="Auto Mode", objectName="action-btn")
+        self.switch_auto_btn.clicked.connect(self.switch_auto_mode)
+        cancel_btn = QPushButton(text="Cancel", objectName="action-btn")
+        cancel_btn.clicked.connect(self.cancel_scan)
+        scan_layout.addWidget(self.capture_btn)
+        scan_layout.addWidget(self.switch_auto_btn)
+        scan_layout.addWidget(cancel_btn)
+        self.scan_widget.setLayout(scan_layout)
+        self.scan_widget.setHidden(True)
+
         layout.addLayout(method_layout)
         layout.addWidget(self.frame_method)
         layout.addLayout(axis_layout)
         layout.addWidget(self.scan_btn)
         layout.addWidget(self.scan_progress)
+        layout.addWidget(self.scan_widget)
         layout.addStretch()
         self.setLayout(layout)
 
     @Slot()
     def scan(self):
+        self.wnd.main_tab.set_action("scanning")
         self.scan_btn.setEnabled(False)
         self.scan_progress.setHidden(False)
+        self.scan_widget.setHidden(False)
+        self.capture_btn.setHidden(self.is_auto.isChecked())
+        self.switch_auto_btn.setHidden(self.is_auto.isChecked())
         self.scan_th = ScanningThread(self.wnd,
                                       self.scan_progress,
                                       self.method.currentText(),
@@ -96,7 +117,9 @@ class ScanningTab(QWidget):
 
     @Slot()
     def add_scan_tab(self, frames, info):
+        self.wnd.main_tab.set_action("none")
         self.scan_progress.setHidden(True)
+        self.scan_widget.setHidden(True)
         self.scan_progress.reset()
         title = f"scan{self.scan_counter}"
         scan_tab = ScanTab(frames, title, info)
@@ -104,3 +127,23 @@ class ScanningTab(QWidget):
         self.wnd.tabs.addTab(scan_tab, title)
         self.wnd.tabs.setCurrentWidget(scan_tab)
         self.scan_counter += 1
+
+    @Slot()
+    def set_ready_for_frame(self):
+        self.scan_th.ready_for_frame = True
+
+    @Slot()
+    def switch_auto_mode(self):
+        self.scan_th.is_auto = True
+        self.capture_btn.setHidden(True)
+        self.switch_auto_btn.setHidden(True)
+
+    @Slot()
+    def cancel_scan(self):
+        self.scan_th.is_canceled = True
+        self.scan_th.running = False
+        self.scan_progress.setHidden(True)
+        self.scan_progress.reset()
+        self.scan_widget.setHidden(True)
+        self.wnd.main_tab.set_action("none")
+

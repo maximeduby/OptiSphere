@@ -77,6 +77,7 @@ class TrackingTab(QWidget):
     def init_tracking(self):
         if self.wnd.main_tab.is_tracking_on:
             self.wnd.main_tab.is_tracking_on = False
+            self.wnd.main_tab.set_action("none")
             self.tracking_btn.setText("Start Tracking")
             self.box = None
             if len(self.track) > 2:
@@ -95,6 +96,7 @@ class TrackingTab(QWidget):
                 self.wnd.main_tab.tracker = cv2.TrackerCSRT_create()
                 self.wnd.main_tab.tracker.init(self.wnd.main_tab.th.frame, self.box)
                 self.wnd.main_tab.is_tracking_on = True
+                self.wnd.main_tab.set_action("tracking")
                 self.tracking_btn.setText("Stop Tracking")
                 self.wnd.main_tab.box_signal.connect(self.handle_tracking)
                 self.dimension = (self.wnd.main_tab.th.frame.shape[1], self.wnd.main_tab.th.frame.shape[0])

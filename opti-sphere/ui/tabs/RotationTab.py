@@ -115,6 +115,7 @@ class RotationTab(QWidget):
 
     @Slot()
     def apply_rot(self):
+        self.wnd.main_tab.set_action("rotation")
         rot = (
             self.roll_spinbox.value(),
             self.pitch_spinbox.value(),
@@ -123,6 +124,7 @@ class RotationTab(QWidget):
         self.wnd.ser.send_instruction(self.wnd.ser.ROT, *rot)
         self.wnd.sphere.set_rotation(rot)
         self.apply_rot_btn.setEnabled(False)
+        self.wnd.main_tab.set_action("none")
 
     @Slot()
     def update_rotation(self, roll, pitch, yaw):

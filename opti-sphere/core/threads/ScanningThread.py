@@ -28,11 +28,13 @@ class ScanningThread(QThread):
         self.directory = "empty"
         self.done = False
         self.ready_for_frame = False
+        self.is_canceled = False
 
     def run(self):
         self.wnd.threads.append(self)
         self.generate_recovery_directory()
         self.add_frame(self.wnd.main_tab.th.frame)
+        self.progress_signal.emit("Scanning...", int(100 * len(self.frames) / (360 / self.delta_angle + 1)))
         while self.running and self.current_angle <= 360:
             if self.current_angle == 0:
                 flag = 0
@@ -41,35 +43,46 @@ class ScanningThread(QThread):
             else:
                 flag = 1
             self.current_angle += self.delta_angle
-            print(self.current_angle)
-
             self.rotate(self.axis, flag)
-            self.progress_signal.emit("Scanning...", int(self.current_angle / 3.6))
+            time.sleep(0.5)
             while self.running and not self.is_auto:
                 if self.ready_for_frame:
+                    self.ready_for_frame = False
                     break
             self.add_frame(self.wnd.main_tab.th.frame)
-        info = (
-            self.directory,
-            self.method,
-            self.axis,
-            self.delta_angle,
-            self.is_auto
-        )
-        self.scan_signal.emit(self.frames, info)
+            self.progress_signal.emit("Scanning...", int(100 * len(self.frames)/(360/self.delta_angle + 1)))
+        if self.is_canceled:
+            self.wnd.ser.send_command(f"release {self.axis}")
+        else:
+            info = (
+                self.directory,
+                self.method,
+                self.axis,
+                self.delta_angle,
+                self.is_auto
+            )
+            self.scan_signal.emit(self.frames, info)
         self.wnd.threads.remove(self)
 
     def rotate(self, axis, flag):
         if axis == "Roll":
             self.wnd.ser.send_instruction(
-                self.wnd.ser.SCAN, "roll", (self.wnd.sphere.roll + self.current_angle + 180) % 360 - 180, flag
+                self.wnd.ser.SCAN, "roll", (self.wnd.sphere.roll + self.delta_angle + 180) % 360 - 180, flag
             )
-            self.wnd.sphere.set_rotation(((self.wnd.sphere.roll + self.current_angle + 180) % 360 - 180, 0, 0))
+            self.wnd.sphere.set_rotation((
+                (self.wnd.sphere.roll + self.delta_angle + 180) % 360 - 180,
+                self.wnd.sphere.pitch,
+                self.wnd.sphere.yaw)
+            )
         elif axis == "Pitch":
             self.wnd.ser.send_instruction(
-                self.wnd.ser.SCAN, "pitch", (self.wnd.sphere.pitch + self.current_angle + 180) % 360 - 180, flag
+                self.wnd.ser.SCAN, "pitch", (self.wnd.sphere.pitch + self.delta_angle + 180) % 360 - 180, flag
             )
-            self.wnd.sphere.set_rotation((0, (self.wnd.sphere.pitch + self.current_angle + 180) % 360 - 180, 0))
+            self.wnd.sphere.set_rotation((
+                self.wnd.sphere.roll,
+                (self.wnd.sphere.pitch + self.delta_angle + 180) % 360 - 180,
+                self.wnd.sphere.yaw)
+            )
         self.__waiting_loop()
 
     @Slot()
@@ -80,7 +93,7 @@ class ScanningThread(QThread):
     def generate_recovery_directory(self):
         self.directory = "scan_" + datetime.now().strftime("%Y%m%d_%H-%M-%S")
         try:
-            location = os.path.join("resources", self.directory)
+            location = os.path.join("recovery", self.directory)
             os.mkdir(os.path.join(location))
             os.mkdir(os.path.join(location, "frames"))
             config = ConfigParser()

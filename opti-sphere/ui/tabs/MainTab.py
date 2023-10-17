@@ -73,3 +73,17 @@ class MainTab(Tab):
         if self.camera_feed.selection_mode:
             self.tracking.roi_selection()
 
+    def set_action(self, action):
+        if action == "rotation":
+            self.tracking.setEnabled(False)
+            self.scanning.setEnabled(False)
+        elif action == "tracking":
+            self.rotation.setEnabled(False)
+            self.scanning.setEnabled(False)
+        elif action == "scanning":
+            self.rotation.setEnabled(False)
+            self.tracking.setEnabled(False)
+        elif action == "none":
+            self.rotation.setEnabled(True)
+            self.tracking.setEnabled(True)
+            self.scanning.setEnabled(True)
