@@ -94,7 +94,7 @@ class TrackingTab(QWidget):
             if self.box:
                 self.roi_selection()
                 self.wnd.main_tab.tracker = cv2.TrackerCSRT_create()
-                self.wnd.main_tab.tracker.init(self.wnd.main_tab.th.frame, self.box)
+                self.wnd.main_tab.tracker.init(self.wnd.main_tab.th.get_monochrome(), self.box)
                 self.wnd.main_tab.is_tracking_on = True
                 self.wnd.main_tab.set_action("tracking")
                 self.tracking_btn.setText("Stop Tracking")

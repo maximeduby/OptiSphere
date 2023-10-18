@@ -27,3 +27,6 @@ class CameraThread(QThread):
     def stop(self):
         self.running = False
         self.wait()
+
+    def get_monochrome(self):
+        return cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)

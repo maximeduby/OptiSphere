@@ -91,7 +91,8 @@ class MainWindow(QMainWindow):
                 tab = self.tabs.widget(index)
                 if tab.__class__.__name__ in ["ScanTab", "TrackTab"]:
                     shutil.rmtree(os.path.join("recovery"), tab.info[0])
-
+                    if not os.path.exists("recovery"):
+                        os.makedirs("recovery")
                 self.tabs.removeTab(index)
                 self.tabs.setCurrentWidget(self.main_tab)
 

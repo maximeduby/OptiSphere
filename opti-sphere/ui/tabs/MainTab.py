@@ -53,7 +53,7 @@ class MainTab(Tab):
     @Slot()
     def handle_camera_feed(self, frame):
         if self.is_tracking_on:
-            ok, box = self.tracker.update(frame)
+            ok, box = self.tracker.update(self.th.get_monochrome())
             if ok:
                 self.box_signal.emit(box)
                 cv2.rectangle(
