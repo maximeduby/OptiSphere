@@ -44,7 +44,7 @@ class ScanningThread(QThread):
                 flag = 1
             self.current_angle += self.delta_angle
             self.rotate(self.axis, flag)
-            time.sleep(0.5)
+            time.sleep(1)
             while self.running and not self.is_auto:
                 if self.ready_for_frame:
                     self.ready_for_frame = False

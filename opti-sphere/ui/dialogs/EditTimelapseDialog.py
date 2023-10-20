@@ -1,5 +1,4 @@
-from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QFormLayout, QSpinBox, QDialog, QDialogButtonBox, QSizePolicy
+from PySide6.QtWidgets import QFormLayout, QSpinBox, QDialog, QDialogButtonBox
 
 from ui.widgets.HMSTimeWidget import HMSTimeWidget
 
@@ -8,7 +7,6 @@ class EditTimelapseDialog(QDialog):
     def __init__(self, duration, delta_time):
         super().__init__()
         self.setWindowTitle("Edit Timelapse Settings")
-        # self.setFixedSize()
 
         self.prev_duration = duration
         self.prev_delta_time = delta_time

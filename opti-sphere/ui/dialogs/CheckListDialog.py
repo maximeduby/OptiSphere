@@ -1,9 +1,7 @@
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QStandardItem, QStandardItemModel
-from PySide6.QtWidgets import QFormLayout, QSpinBox, QDialog, QDialogButtonBox, QSizePolicy, QPushButton, QHBoxLayout, \
+from PySide6.QtWidgets import QDialog, QPushButton, QHBoxLayout, \
     QListView, QVBoxLayout
-
-from ui.widgets.HMSTimeWidget import HMSTimeWidget
 
 
 class CheckListDialog(QDialog):

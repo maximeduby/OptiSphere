@@ -126,6 +126,7 @@ class MainWindow(QMainWindow):
         # tools menu
         self.tools_menu.addAction('Connect to serial', self.open_serial_setup)
         self.tools_menu.addAction('Serial Debugger', self.open_serial_debugger)
+        self.tools_menu.addAction('Calibrate System', self.main_tab.start_calibration)
     def update_camera_menu(self):
         for action in self.cam_devices_group.actions():
             self.cam_menu.removeAction(action)

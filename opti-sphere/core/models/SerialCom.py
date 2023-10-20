@@ -85,6 +85,7 @@ class SerialCom(serial.Serial):
         elif category == self.RESPONSE:
             response = content.decode('utf-8')
             print("Response: ", response)
+
         elif category == self.ERROR:
             error = content.decode('utf-8')
             print("Error:", error)

@@ -127,26 +127,26 @@ QSlider::handle:horizontal:hover{
     border-color: #1261ff;
 }
 
-QPushButton#action-btn{
+QPushButton#action-btn, QPushButton#reject-btn{
     height: 28px;
     background: #3e3e3e;
     border-radius: 10px;
     color: #CCCCCC;
 }
 
-QPushButton#action-btn:hover{
+QPushButton#action-btn:hover, QPushButton#reject-btn:hover{
     height: 28px;
     background: #4e4e4e;
     color: #CCCCCC;
 }
 
-QPushButton#action-btn:disabled{
+QPushButton#action-btn:disabled, QPushButton#reject-btn:disabled{
     height: 28px;
     background: hsl(0, 0%, 17%);
     border-radius: 10px;
     color: hsl(0, 0%, 50%);
 }
-QPushButton#action-btn:pressed{
+QPushButton#action-btn:pressed, QPushButton#reject-btn:pressed{
     background-color: hsl(0,0%, 37%);
 }
 
@@ -301,4 +301,33 @@ QTableWidget::item {
 
 QTableWidget::item:selected {
     background-color: #5e5e5e;
+}
+
+QLabel#digit {
+    font-size: 50pt;
+    color: #fff;
+    font-weight: 800;
+}
+
+QPushButton#accept-btn{
+    height: 28px;
+    background: hsl(220, 93%, 51%);
+    border-radius: 10px;
+    color: #CCCCCC;
+}
+
+QPushButton#accept-btn:hover{
+    height: 28px;
+    background: hsl(220, 93%, 58%);
+    color: #CCCCCC;
+}
+
+QPushButton#accept-btn:disabled{
+    height: 28px;
+    background: hsl(220, 93%, 44%);
+    border-radius: 10px;
+    color: hsl(0, 0%, 50%);
+}
+QPushButton#accept-btn:pressed{
+    background-color: hsl(220, 93%, 64%);
 }

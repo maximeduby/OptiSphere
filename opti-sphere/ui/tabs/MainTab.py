@@ -1,10 +1,12 @@
 import cv2
 
 from PySide6.QtCore import Slot, Qt, Signal
-from PySide6.QtGui import QShortcut
-from PySide6.QtWidgets import QTabWidget
+from PySide6.QtGui import QShortcut, QIcon
+from PySide6.QtSvgWidgets import QSvgWidget
+from PySide6.QtWidgets import QTabWidget, QWidget, QVBoxLayout, QLabel, QPushButton, QHBoxLayout, QDialog
 
 from core.threads.CameraThread import CameraThread
+from ui.dialogs.CalibrationDialog import CalibrationDialog
 from ui.tabs.RotationTab import RotationTab
 from ui.tabs.ScanningTab import ScanningTab
 from ui.tabs.Tab import Tab
@@ -28,9 +30,33 @@ class MainTab(Tab):
         self.control.addTab(self.rotation, "Rotation")
         self.control.addTab(self.tracking, "Tracking")
         self.control.addTab(self.scanning, "Scanning")
+        self.control.setHidden(True)
+
+        self.calibration = QWidget(objectName='widget-container')
+        self.calibration.setAttribute(Qt.WidgetAttribute.WA_StyledBackground)
+        calib_layout = QVBoxLayout()
+        calib_layout.setAlignment(Qt.Alignment.AlignCenter)
+        calib_icon_layout = QHBoxLayout()
+        calib_icon = QSvgWidget("resources/icons/calibration-icon.svg")
+        calib_icon.setFixedSize(50, 50)
+        calib_icon_layout.addStretch()
+        calib_icon_layout.addWidget(calib_icon)
+        calib_icon_layout.addStretch()
+        calib_icon_layout.setContentsMargins(0, 0, 0, 15)
+        calib_legend = QLabel(text="Start by calibrating the system", objectName="legend")
+        calib_legend.setAlignment(Qt.Alignment.AlignCenter)
+        calib_btn = QPushButton(text="Calibrate", objectName="action-btn")
+        calib_btn.clicked.connect(self.start_calibration)
+        calib_layout.addStretch()
+        calib_layout.addLayout(calib_icon_layout)
+        calib_layout.addWidget(calib_legend)
+        calib_layout.addWidget(calib_btn)
+        calib_layout.addStretch()
+        self.calibration.setLayout(calib_layout)
 
         self.scene_layout.addWidget(self.camera_feed)
         self.sidebar_layout.addWidget(self.capture)
+        self.sidebar_layout.addWidget(self.calibration)
         self.sidebar_layout.addWidget(self.control)
 
         self.th = CameraThread(0, self.wnd.threads)
@@ -87,3 +113,13 @@ class MainTab(Tab):
             self.rotation.setEnabled(True)
             self.tracking.setEnabled(True)
             self.scanning.setEnabled(True)
+
+    @Slot()
+    def start_calibration(self):
+        calib = CalibrationDialog(self.wnd)
+        ready = calib.exec()
+        if ready == QDialog.DialogCode.Accepted:
+            self.wnd.ser.send_command("calibrate")
+            self.calibration.setHidden(True)
+            self.control.setHidden(False)
+
