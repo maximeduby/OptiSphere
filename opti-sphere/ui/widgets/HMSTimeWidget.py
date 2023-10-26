@@ -7,7 +7,8 @@ class HMSTimeWidget(QWidget):
         self.duration = duration
 
         layout = QHBoxLayout()
-        layout.setSpacing(0)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(3)
 
         self.hours = QSpinBox()
         self.hours.setValue(self.duration // 3600)

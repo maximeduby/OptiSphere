@@ -1,4 +1,5 @@
-from PySide6.QtWidgets import QFormLayout, QSpinBox, QDialog, QDialogButtonBox
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QFormLayout, QSpinBox, QDialog, QDialogButtonBox, QPushButton, QHBoxLayout
 
 from ui.widgets.HMSTimeWidget import HMSTimeWidget
 
@@ -12,18 +13,23 @@ class EditTimelapseDialog(QDialog):
         self.prev_delta_time = delta_time
 
         layout = QFormLayout(self)
+        layout.setLabelAlignment(Qt.AlignmentFlag.AlignRight)
+        layout.setFormAlignment(Qt.AlignmentFlag.AlignVCenter)
         self.duration = HMSTimeWidget(self.prev_duration)
         self.delta_time = QSpinBox()
         self.delta_time.setMinimum(0)
         self.delta_time.setValue(self.prev_delta_time)
-        button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel, self)
+        btn_layout = QHBoxLayout()
+        ok_btn = QPushButton(text="Start", objectName="accept-btn")
+        ok_btn.clicked.connect(self.accept)
+        cancel_btn = QPushButton(text="Cancel", objectName="reject-btn")
+        cancel_btn.clicked.connect(self.reject)
+        btn_layout.addWidget(ok_btn)
+        btn_layout.addWidget(cancel_btn)
         layout.addRow("Recording Duration:", self.duration)
         layout.addRow("Delta Time (seconds):", self.delta_time)
-        layout.addWidget(button_box)
+        layout.addRow(btn_layout)
         self.setLayout(layout)
-
-        button_box.accepted.connect(self.accept)
-        button_box.rejected.connect(self.reject)
 
     def get_duration(self):
         return self.duration.get_value()

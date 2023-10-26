@@ -45,12 +45,17 @@ class MainTab(Tab):
         calib_icon_layout.setContentsMargins(0, 0, 0, 15)
         calib_legend = QLabel(text="Start by calibrating the system", objectName="legend")
         calib_legend.setAlignment(Qt.Alignment.AlignCenter)
-        calib_btn = QPushButton(text="Calibrate", objectName="action-btn")
+        btn_layout = QHBoxLayout()
+        calib_btn = QPushButton(text="Calibrate", objectName="accept-btn")
+        pass_calib_btn = QPushButton(text="Pass", objectName="reject-btn")
         calib_btn.clicked.connect(self.start_calibration)
+        pass_calib_btn.clicked.connect(self.pass_calibration)
+        btn_layout.addWidget(calib_btn)
+        btn_layout.addWidget(pass_calib_btn)
         calib_layout.addStretch()
         calib_layout.addLayout(calib_icon_layout)
         calib_layout.addWidget(calib_legend)
-        calib_layout.addWidget(calib_btn)
+        calib_layout.addLayout(btn_layout)
         calib_layout.addStretch()
         self.calibration.setLayout(calib_layout)
 
@@ -122,4 +127,9 @@ class MainTab(Tab):
             self.wnd.ser.send_command("calibrate")
             self.calibration.setHidden(True)
             self.control.setHidden(False)
+
+    @Slot()
+    def pass_calibration(self):
+        self.calibration.setHidden(True)
+        self.control.setHidden(False)
 

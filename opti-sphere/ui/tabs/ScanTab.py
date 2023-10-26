@@ -53,5 +53,5 @@ class ScanTab(Tab):
         location = QFileDialog.getExistingDirectory(None, "Choose Location")
         new_directory = os.path.join(location, self.title)
         old_directory = os.path.join("recovery", self.info[0])
-        shutil.move(old_directory, new_directory)
+        shutil.copytree(old_directory, new_directory)
 

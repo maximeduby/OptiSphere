@@ -1,0 +1,22 @@
+[project]
+name = "Opti-Sphere GALIPON"
+version = "1.0.0"
+description = ""
+readme = "README.md"
+authors = [
+    { name = "Maxime Duby", email = "pro.maximeduby@gmail.com" },
+]
+
+dependencies = [
+    "pyside6",
+    "pyserial",
+    "opencv-contrib-python",
+    "unidecode",
+    "numpy",
+    "pyquaternion",
+    "pyopengl"
+]
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"

@@ -331,3 +331,15 @@ QPushButton#accept-btn:disabled{
 QPushButton#accept-btn:pressed{
     background-color: hsl(220, 93%, 64%);
 }
+
+QProgressBar#progress-bar{
+    background-color: #151415;
+    border-radius: 9px;
+    border: 6px solid transparent;
+    height: 0px;
+}
+
+QProgressBar#progress-bar::chunk {
+    background-color: #105BF6;
+    border-radius: 3px;
+ }

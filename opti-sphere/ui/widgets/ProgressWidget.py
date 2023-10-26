@@ -5,12 +5,12 @@ from PySide6.QtWidgets import QWidget, QVBoxLayout, QProgressBar, QLabel, QHBoxL
 class ProgressWidget(QWidget):
     def __init__(self):
         super().__init__()
-
         layout = QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
 
         self.progress = QProgressBar(objectName="progress-bar")
+        self.progress.setTextVisible(False)
         self.status = QLabel(text="", objectName="status")
         self.percentage = QLabel(text="0%", objectName="legend")
 

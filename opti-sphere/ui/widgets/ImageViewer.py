@@ -60,6 +60,7 @@ class ImageViewer(QGraphicsView):
             self.selection.show()
         else:
             super().mousePressEvent(event)
+            print(f"Coordonnées: ({int(event.x()/self.image.scale())}, {int(event.y()/self.image.scale())})")
 
     def mouseMoveEvent(self, event):
         if self.selection_mode and self.is_selecting and self.selection:

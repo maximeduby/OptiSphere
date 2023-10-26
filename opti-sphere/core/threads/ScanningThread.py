@@ -35,10 +35,10 @@ class ScanningThread(QThread):
         self.generate_recovery_directory()
         self.add_frame(self.wnd.main_tab.th.frame)
         self.progress_signal.emit("Scanning...", int(100 * len(self.frames) / (360 / self.delta_angle + 1)))
-        while self.running and self.current_angle <= 360:
+        while self.running and self.current_angle < 360:
             if self.current_angle == 0:
                 flag = 0
-            elif self.current_angle + self.delta_angle > 360:
+            elif self.current_angle + self.delta_angle >= 360:
                 flag = 2
             else:
                 flag = 1

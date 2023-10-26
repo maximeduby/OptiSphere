@@ -1,5 +1,6 @@
-from PySide6.QtCore import Qt, Signal
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QHBoxLayout, QLineEdit
+import imageio
+from PySide6.QtCore import Qt, Signal, Slot
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QHBoxLayout, QLineEdit, QPushButton, QFileDialog
 
 
 class ScanWidget(QWidget):
@@ -59,9 +60,13 @@ class ScanWidget(QWidget):
         details_layout.addLayout(details_layout_bottom)
         details_widget.setLayout(details_layout)
 
+        export_gif_btn = QPushButton(text="Export GIF", objectName="accept-btn")
+        export_gif_btn.clicked.connect(self.export_gif)
+
         layout.addWidget(header)
         layout.addLayout(name_layout)
         layout.addWidget(details_widget)
+        layout.addWidget(export_gif_btn)
         layout.setAlignment(Qt.AlignTop)
         self.setLayout(layout)
 
@@ -69,3 +74,14 @@ class ScanWidget(QWidget):
         self.scan.title = new_name
         self.update_signal.emit(new_name)
         self.name.clearFocus()
+
+    @Slot()
+    def export_gif(self):
+        filename = QFileDialog.getSaveFileName(None, "Save GIF", self.scan.title, "Image (*.gif)")
+        if filename[0] == '':
+            return
+
+        with imageio.get_writer(filename[0], mode='I') as writer:
+            for frame in self.scan.frames:
+                writer.append_data(frame)
+
