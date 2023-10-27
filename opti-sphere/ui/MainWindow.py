@@ -11,7 +11,7 @@ from PySide6.QtCore import Slot
 from PySide6.QtGui import QScreen, QActionGroup, QAction
 from PySide6.QtMultimedia import QMediaDevices
 from PySide6.QtWidgets import (QMainWindow, QApplication, QWidget, QHBoxLayout,
-                               QTabWidget, QTabBar, QMessageBox, QInputDialog, QDialog)
+                               QTabWidget, QTabBar, QMessageBox, QInputDialog, QDialog, QFileDialog)
 
 from config import WINDOW_WIDTH, WINDOW_HEIGHT
 
@@ -20,7 +20,9 @@ from core.models.SerialCom import SerialCom
 from core.models.Sphere import Sphere
 from ui.dialogs.CheckListDialog import CheckListDialog
 from ui.tabs.ScanTab import ScanTab
+from ui.tabs.SnapshotTab import SnapshotTab
 from ui.tabs.TrackTab import TrackTab
+from ui.tabs.VideoTab import VideoTab
 from ui.widgets.SerialDebugger import SerialDebugger
 from ui.tabs.MainTab import MainTab
 
@@ -113,7 +115,7 @@ class MainWindow(QMainWindow):
 
     def init_menu_bar(self):
         # file menu
-        self.file_menu.addAction("Open", lambda: self.open_file())
+        self.file_menu.addAction("Import", lambda: self.import_data())
         self.file_menu.addAction('Save', lambda: self.tabs.currentWidget().save())
         self.file_menu.actions()[1].setEnabled(False)
 
@@ -243,8 +245,9 @@ class MainWindow(QMainWindow):
                                 tuple([float(i) for i in row[:3]]),
                                 datetime.datetime.strptime(row[3], '%Y-%m-%d %H:%M:%S.%f'))
                             )
-                        if int(config['TRACK']["nb_points"]) != len(track):
-                            print("Error when loading data: Incorrect number of track points")
+                    if int(config['TRACK']["nb_points"]) != len(track):
+                        print("Error when loading data: Incorrect number of track points")
+                        return
                     info = (
                         config['TRACK']['name'],
                         config['TRACK']['mode'],
@@ -258,5 +261,114 @@ class MainWindow(QMainWindow):
             except FileExistsError or FileNotFoundError as e:
                 print(e)
 
-    def open_file(self):
-        print("open")
+    def import_data(self):
+        files = QFileDialog.getOpenFileNames(self,
+                                             "Select one or more files to open",
+                                             "/",
+                                             "Images (*.png *.tiff *.jpg);;Videos (*.mp4 *.avi);;Config Files (*.INI)")
+        for data in files[0]:
+            if files[1].startswith("Images"):
+                img = cv2.imread(data)
+                title = os.path.splitext(os.path.basename(data))[0]
+                snapshot_tab = SnapshotTab(img, title)
+                snapshot_tab.ss_widget.update_signal.connect(self.update_name)
+                self.tabs.addTab(snapshot_tab, title)
+                self.tabs.setCurrentWidget(snapshot_tab)
+            elif files[1].startswith("Videos"):
+                title = os.path.splitext(os.path.basename(data))[0]
+                vid = cv2.VideoCapture(data)
+                frames = []
+                ret = 1
+                while ret:
+                    ret, frame = vid.read()
+                    if ret:
+                        frames.append(frame)
+                video_tab = VideoTab(frames, title, self.fps)
+                video_tab.vid_widget.update_signal.connect(self.update_name)
+                self.tabs.addTab(video_tab, title)
+                self.tabs.setCurrentWidget(video_tab)
+            elif files[1].startswith("Config Files"):
+                config = ConfigParser()
+                config.read(data)
+                if config.sections()[0] == "SCAN":
+                    frame_folder = os.path.join(os.path.dirname(data), "frames")
+                    if not os.path.exists(frame_folder):
+                        print("Frames folder not found")
+                        QMessageBox(self).critical(self, "Error", "The folder containing the frames was not found")
+                        return
+                    options = ["name", "nb_frames", "method", "axis", "delta_angle"]
+                    for option in options:
+                        if not config.has_option('SCAN', option):
+                            print("Cannot read Configuration file")
+                            QMessageBox(self).critical(self, "Error", "Cannot read Configuration file")
+                            return
+                    nb_frames = int(config['SCAN']['nb_frames'])
+                    frames = []
+                    frames_files = []
+                    for filename in os.listdir(frame_folder):
+                        f = os.path.join(frame_folder, filename)
+                        if os.path.isfile(f):
+                            frames_files.append(f)
+
+                    if len(frames_files) != nb_frames or nb_frames == 0:
+                        print("Error when loading data: Incorrect number of frames")
+                        QMessageBox(self).critical(self, "Error", "Error when loading data: Incorrect number of frames")
+                        return
+                    frames_files.sort()
+                    for file in frames_files:
+                        frames.append(cv2.imread(file))
+                    info = (
+                        config['SCAN']['name'],
+                        config['SCAN']['method'],
+                        config['SCAN']['axis'],
+                        float(config['SCAN']['delta_angle']),
+                        False
+                    )
+                    scan_tab = ScanTab(frames, info[0], info)
+                    scan_tab.scan_widget.update_signal.connect(self.update_name)
+                    self.tabs.addTab(scan_tab, info[0])
+                    self.tabs.setCurrentWidget(scan_tab)
+                elif config.sections()[0] == "TRACK":
+                    track = []
+                    data_CSV = os.path.join(os.path.dirname(data), "data.csv")
+                    if not os.path.exists(data_CSV):
+                        print("CSV file not found")
+                        QMessageBox(self).critical(self, "Error", "CSV file containing data not found")
+                        return
+                    with open(data_CSV, 'r') as file:
+                        reader = csv.reader(file)
+                        next(reader)
+                        for row in reader:
+                            track.append(TrackingData(
+                                tuple([float(i) for i in row[:3]]),
+                                datetime.datetime.strptime(row[3], '%Y-%m-%d %H:%M:%S.%f'))
+                            )
+                    options = ["name", "nb_points", "mode", "description"]
+                    for option in options:
+                        if not config.has_option('TRACK', option):
+                            print("Cannot read Configuration file")
+                            QMessageBox(self).critical(self, "Error", "Cannot read Configuration file")
+                            return
+                    if int(config['TRACK']["nb_points"]) != len(track):
+                        print("Error when loading data: Incorrect number of track points")
+                        QMessageBox(self).critical(
+                            self,
+                            "Error",
+                            "Error when loading data: Incorrect number of track points"
+                        )
+                        return
+                    info = (
+                        config['TRACK']['name'],
+                        config['TRACK']['mode'],
+                        config['TRACK']['description']
+                    )
+                    track_tab = TrackTab(track, info[0], info)
+                    track_tab.track_widget.update_signal.connect(self.update_name)
+                    self.tabs.addTab(track_tab, info[0])
+                    self.tabs.setCurrentWidget(track_tab)
+
+                else:
+                    QMessageBox(self).critical(self, "Error", f"Could not read the file {data}")
+            else:
+                print("File(s) format not recognized")
+                QMessageBox(self).critical(self, "Error", "File(s) format not recognized")
