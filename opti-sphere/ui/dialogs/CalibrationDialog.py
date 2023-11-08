@@ -14,7 +14,7 @@ class CalibrationDialog(QDialog):
 
         steps_layout = QHBoxLayout()
         step_1 = StepWidget(step=1, text="Make sure the power of the system is turned off")
-        step_2 = StepWidget(step=2, text="Screw both linear stage to hold the sphere tight")
+        step_2 = StepWidget(step=2, text="Screw both linear stages to hold the sphere tight")
         step_3 = StepWidget(step=3, text="Turn the power of the system on")
         steps_layout.addWidget(step_1)
         steps_layout.addWidget(step_2)

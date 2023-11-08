@@ -1,7 +1,7 @@
 from PySide6.QtCore import QThread, Signal, QTimer
 
 
-class SerialThread(QThread):
+class SerialThread(QThread):  # thread processing the writing and reading of data during serial communication
     response_signal = Signal(bytes, bytes)
 
     def __init__(self, serial, packet, threads):

@@ -2,7 +2,7 @@ import cv2
 from PySide6.QtCore import QThread, Signal
 
 
-class CameraThread(QThread):
+class CameraThread(QThread):  # thread processing the camera feed
     cam_signal = Signal(object)
 
     def __init__(self, device_id, threads):
@@ -28,5 +28,5 @@ class CameraThread(QThread):
         self.running = False
         self.wait()
 
-    def get_monochrome(self):
+    def get_monochrome(self):  # return the frame captured filtered in monochrome
         return cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)

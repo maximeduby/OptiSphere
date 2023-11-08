@@ -87,7 +87,7 @@ class VideoTab(Tab):
 
     def get_dimensions(self):
         vid_height, vid_width, _ = self.frames[0].shape
-        dim = f"{vid_width}x{vid_height}"
+        dim = f"{vid_width} × {vid_height}"
         return dim
 
     def get_duration(self):
@@ -95,11 +95,10 @@ class VideoTab(Tab):
         minutes, seconds = tot_sec // 60, tot_sec % 60
         return f"{'{:02d}'.format(minutes)}:{'{:02d}'.format(seconds)}"
 
-    def save(self):
-        filename = QFileDialog.getSaveFileName(None, "Save Video", self.title, "All files (*.*);Video files(*.*)")
+    def export(self):
+        filename = QFileDialog.getSaveFileName(None, "Export Video", self.title, "All files (*.*);Video files(*.*)")
         if filename[0] == '':
             return
-
         vid_height, vid_width, channel = self.frames[0].shape
         size = (vid_width, vid_height)
         output = cv2.VideoWriter(f"{filename[0]}.avi", cv2.VideoWriter.fourcc('M', 'J', 'P', 'G'), self.fps, size)

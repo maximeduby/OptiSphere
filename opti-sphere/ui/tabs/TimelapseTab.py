@@ -6,6 +6,7 @@ from PySide6.QtWidgets import QPushButton, QLabel, QSlider, QHBoxLayout, QFileDi
 
 from ui.tabs.Tab import Tab
 from ui.widgets.ImageViewer import ImageViewer
+from ui.widgets.ProgressWidget import ProgressWidget
 from ui.widgets.TimelapseWidget import TimelapseWidget
 
 
@@ -98,17 +99,21 @@ class TimelapseTab(Tab):
         minutes, seconds = tot_sec // 60, tot_sec % 60
         return f"{'{:02d}'.format(minutes)}:{'{:02d}'.format(seconds)}"
 
-    def save(self):
-        filename = QFileDialog.getSaveFileName(None, "Save Timelapse as Video", self.title, "All files (*.*);Video files(*.*)")
+    def export(self):
+        filename = QFileDialog.getSaveFileName(None, "Export Timelapse as Video", self.title, "All files (*.*);Video files(*.*)")
         if filename[0] == '':
             return
 
         vid_height, vid_width, channel = self.frames[0].shape
         size = (vid_width, vid_height)
         output = cv2.VideoWriter(f"{filename[0]}.avi", cv2.VideoWriter.fourcc('M', 'J', 'P', 'G'), self.fps, size)
-        for frame in self.frames:
+        progress = ProgressWidget()
+        progress.show()
+        for index, frame in enumerate(self.frames):
             output.write(frame)
+            progress.update_progress("Exporting...", int(index/len(self.frames) * 100))
         output.release()
+        progress.close()
 
     def resizeEvent(self, event):
         self.timelapse.set_image(self.frames[self.current_frame])

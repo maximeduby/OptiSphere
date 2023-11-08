@@ -4,10 +4,10 @@ from PySide6.QtWidgets import QVBoxLayout, QTextEdit, QLineEdit, QApplication, Q
 from serial import SerialException
 
 
-class SerialDebugger(QWidget):
+class SerialTerminal(QWidget):
     def __init__(self, wnd):
         super().__init__()
-        self.setWindowTitle("Serial Debugger")
+        self.setWindowTitle("Serial Terminal")
         self.setGeometry(0, 0, 400, 500)
         self.setObjectName("ser-debugger")
         geometry = self.frameGeometry()

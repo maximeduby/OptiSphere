@@ -23,7 +23,7 @@ class ScanningTab(QWidget):
         method_legend.setFixedWidth(60)
         self.method = QComboBox()
         self.method.view().parentWidget().setStyleSheet('background-color: #151415; border-radius: 5px; padding: 1px;')
-        self.method.addItems(["Frame by Frame", "Continuous Video"])
+        self.method.addItems(["Frame by Frame"])
         self.method.activated.connect(self.change_method)
         method_layout.addWidget(method_legend)
         method_layout.addWidget(self.method)
@@ -113,7 +113,7 @@ class ScanningTab(QWidget):
 
     @Slot()
     def change_method(self):
-        self.frame_method.setHidden(self.method.currentIndex() == 1)
+        self.frame_method.setHidden(self.method.currentIndex() != 0)
 
     @Slot()
     def add_scan_tab(self, frames, info):

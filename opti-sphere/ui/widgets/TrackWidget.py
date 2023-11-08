@@ -49,7 +49,6 @@ class TrackWidget(QWidget):
         desc_layout.setSpacing(5)
         desc_legend = QLabel(text="Description", objectName="legend")
         description = QTextEdit(objectName="desc")
-        description.setReadOnly(True)
         description.setTextColor("#8c8c8c")
         description.setText(self.track.info[2] if self.track.info[2] else "No description")
         desc_layout.addWidget(desc_legend)

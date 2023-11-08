@@ -28,7 +28,7 @@ class TrackTab(Tab):
         self.scene_layout.addWidget(self.spatial_tracking)
         self.sidebar_layout.addWidget(self.track_widget)
 
-    def save(self):
+    def export(self):
         location = QFileDialog.getExistingDirectory(None, "Choose Location")
         new_directory = os.path.join(location, self.title)
         old_directory = os.path.join("recovery", self.info[0])

@@ -8,7 +8,7 @@ from PySide6.QtCore import QThread, Slot, Signal
 from PySide6.QtWidgets import QMessageBox
 
 
-class ScanningThread(QThread):
+class ScanningThread(QThread):  # thread processing the scanning process
     scan_signal = Signal(object, object)
     progress_signal = Signal(str, int)
 
@@ -18,14 +18,16 @@ class ScanningThread(QThread):
         self.wnd = wnd
         self.progress = progress
 
-        self.method = method
-        self.axis = axis
-        self.delta_angle = angle
-        self.is_auto = is_auto
+        self.method = method  # method of scanning
+        self.axis = axis  # axis to scan
+        self.delta_angle = angle  # angle to rotate for every capture
+        self.is_auto = is_auto  # set the scanning mode to automatic or manual
 
-        self.frames = []
-        self.current_angle = 0
-        self.directory = "empty"
+        self.frames = []  # stores the frames captured during the scanning
+        self.current_angle = 0  # keep track of the angle of rotation between 0° to 360°
+        self.directory = "empty"  # name of directory saving the scanning data
+
+        # process booleans
         self.done = False
         self.ready_for_frame = False
         self.is_canceled = False
@@ -64,7 +66,7 @@ class ScanningThread(QThread):
             self.scan_signal.emit(self.frames, info)
         self.wnd.threads.remove(self)
 
-    def rotate(self, axis, flag):
+    def rotate(self, axis, flag):  # send the instruction to RPi for current rotation
         if axis == "Roll":
             self.wnd.ser.send_instruction(
                 self.wnd.ser.SCAN, "roll", (self.wnd.sphere.roll + self.delta_angle + 180) % 360 - 180, flag
@@ -86,11 +88,11 @@ class ScanningThread(QThread):
         self.__waiting_loop()
 
     @Slot()
-    def add_frame(self, frame):
+    def add_frame(self, frame):  # store and save the frame captured from the current angle of view
         self.frames.append(frame)
         cv2.imwrite("recovery/" + self.directory + "/frames/" + self.__get_title(), frame)
 
-    def generate_recovery_directory(self):
+    def generate_recovery_directory(self):  # generate a directory containing the frames captured and a config file
         self.directory = "scan_" + datetime.now().strftime("%Y%m%d_%H-%M-%S")
         try:
             location = os.path.join("recovery", self.directory)
@@ -109,7 +111,7 @@ class ScanningThread(QThread):
         except FileExistsError or FileNotFoundError as e:
             print(e)
 
-    def __get_title(self):
+    def __get_title(self):  # set a specific and indexed title for each frame
         string = "unknown.tiff"
         if self.axis == "Roll":
             string = "A{:04d}".format(len(self.frames)) + "_" + datetime.now().strftime("%Y%m%d_%H-%M-%S") + ".tiff"
@@ -118,11 +120,11 @@ class ScanningThread(QThread):
         return string
 
     @Slot()
-    def set_done(self):
+    def set_done(self):  # inform the current scanning angle was reached
         self.done = True
         print("Done received")
 
-    def __waiting_loop(self):
+    def __waiting_loop(self): # wait for current scanning angle to be reached
         while self.running:
             if self.wnd.ser.is_done:
                 self.wnd.ser.is_done = False

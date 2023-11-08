@@ -49,7 +49,7 @@ class ScanTab(Tab):
         dim = f"{vid_width} × {vid_height}"
         return dim
 
-    def save(self):
+    def export(self):
         location = QFileDialog.getExistingDirectory(None, "Choose Location")
         new_directory = os.path.join(location, self.title)
         old_directory = os.path.join("recovery", self.info[0])

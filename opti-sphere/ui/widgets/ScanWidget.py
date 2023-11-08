@@ -1,3 +1,4 @@
+import cv2
 import imageio
 from PySide6.QtCore import Qt, Signal, Slot
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QHBoxLayout, QLineEdit, QPushButton, QFileDialog
@@ -60,6 +61,7 @@ class ScanWidget(QWidget):
         details_layout.addLayout(details_layout_bottom)
         details_widget.setLayout(details_layout)
 
+        # export to gif button
         export_gif_btn = QPushButton(text="Export GIF", objectName="accept-btn")
         export_gif_btn.clicked.connect(self.export_gif)
 
@@ -83,5 +85,5 @@ class ScanWidget(QWidget):
 
         with imageio.get_writer(filename[0], mode='I') as writer:
             for frame in self.scan.frames:
-                writer.append_data(frame)
+                writer.append_data(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
 

@@ -23,7 +23,7 @@ from ui.tabs.ScanTab import ScanTab
 from ui.tabs.SnapshotTab import SnapshotTab
 from ui.tabs.TrackTab import TrackTab
 from ui.tabs.VideoTab import VideoTab
-from ui.widgets.SerialDebugger import SerialDebugger
+from ui.widgets.SerialTerminal import SerialTerminal
 from ui.tabs.MainTab import MainTab
 
 
@@ -77,7 +77,7 @@ class MainWindow(QMainWindow):
         self.setup_serial_connection()
 
         # debugger
-        self.debugger = SerialDebugger(self)
+        self.terminal = SerialTerminal(self)
 
         # recovery
         self.fetch_recovery()
@@ -116,7 +116,7 @@ class MainWindow(QMainWindow):
     def init_menu_bar(self):
         # file menu
         self.file_menu.addAction("Import", lambda: self.import_data())
-        self.file_menu.addAction('Save', lambda: self.tabs.currentWidget().save())
+        self.file_menu.addAction('Export', lambda: self.tabs.currentWidget().export())
         self.file_menu.actions()[1].setEnabled(False)
 
         # camera menu
@@ -127,7 +127,7 @@ class MainWindow(QMainWindow):
 
         # tools menu
         self.tools_menu.addAction('Connect to serial', self.open_serial_setup)
-        self.tools_menu.addAction('Serial Debugger', self.open_serial_debugger)
+        self.tools_menu.addAction('Serial Terminal', self.open_serial_terminal)
         self.tools_menu.addAction('Calibrate System', self.main_tab.start_calibration)
     def update_camera_menu(self):
         for action in self.cam_devices_group.actions():
@@ -155,11 +155,10 @@ class MainWindow(QMainWindow):
     def update_name(self, new_name):
         self.tabs.setTabText(self.tabs.currentIndex(), new_name)
 
-    def open_serial_debugger(self):
+    def open_serial_terminal(self):
         if self.ser.isOpen():
             self.tools_menu.actions()[0].setEnabled(False)
-            # debugger = SerialDebugger(self)
-            self.debugger.show()
+            self.terminal.show()
 
     def open_serial_setup(self):
         ports = ['--None--'] + self.ser.available_port()
@@ -306,10 +305,13 @@ class MainWindow(QMainWindow):
                     frames = []
                     frames_files = []
                     for filename in os.listdir(frame_folder):
+                        if filename.startswith("."):
+                            continue
                         f = os.path.join(frame_folder, filename)
+                        print(f)
                         if os.path.isfile(f):
                             frames_files.append(f)
-
+                    print(len(frames_files), "AND", nb_frames)
                     if len(frames_files) != nb_frames or nb_frames == 0:
                         print("Error when loading data: Incorrect number of frames")
                         QMessageBox(self).critical(self, "Error", "Error when loading data: Incorrect number of frames")
