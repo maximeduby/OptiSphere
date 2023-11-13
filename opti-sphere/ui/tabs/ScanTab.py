@@ -39,17 +39,17 @@ class ScanTab(Tab):
         self.sidebar_layout.addWidget(self.scan_widget)
 
     @Slot()
-    def set_frame(self, value):
+    def set_frame(self, value):  # update displayed frame according to slider value
         self.current_frame = value
         self.scan.set_image(self.frames[self.current_frame])
         self.index.setText(f"Frame {self.current_frame}")
 
-    def get_dimensions(self):
+    def get_dimensions(self):  # return frame's dimensions
         vid_height, vid_width, _ = self.frames[0].shape
         dim = f"{vid_width} × {vid_height}"
         return dim
 
-    def export(self):
+    def export(self):  # export scan to chosen location
         location = QFileDialog.getExistingDirectory(None, "Choose Location")
         new_directory = os.path.join(location, self.title)
         old_directory = os.path.join("recovery", self.info[0])

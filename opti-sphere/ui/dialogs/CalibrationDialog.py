@@ -1,7 +1,4 @@
-from PySide6.QtCore import Qt
-from PySide6.QtGui import QStandardItem, QStandardItemModel
-from PySide6.QtWidgets import QDialog, QPushButton, QHBoxLayout, \
-    QListView, QVBoxLayout
+from PySide6.QtWidgets import QDialog, QPushButton, QHBoxLayout, QVBoxLayout
 
 from ui.widgets.StepWidget import StepWidget
 

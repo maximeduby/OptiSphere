@@ -5,7 +5,6 @@ from datetime import datetime
 
 import cv2
 from PySide6.QtCore import QThread, Slot, Signal
-from PySide6.QtWidgets import QMessageBox
 
 
 class ScanningThread(QThread):  # thread processing the scanning process
@@ -33,27 +32,29 @@ class ScanningThread(QThread):  # thread processing the scanning process
         self.is_canceled = False
 
     def run(self):
-        self.wnd.threads.append(self)
-        self.generate_recovery_directory()
-        self.add_frame(self.wnd.main_tab.th.frame)
+        self.wnd.threads.append(self)  # add new thread to list of threads
+        self.generate_recovery_directory()  # create recovery folder
+        self.add_frame(self.wnd.main_tab.th.frame)  # add the first frame
         self.progress_signal.emit("Scanning...", int(100 * len(self.frames) / (360 / self.delta_angle + 1)))
         while self.running and self.current_angle < 360:
-            if self.current_angle == 0:
+            if self.current_angle == 0:  # set the scan flag
                 flag = 0
             elif self.current_angle + self.delta_angle >= 360:
                 flag = 2
             else:
                 flag = 1
-            self.current_angle += self.delta_angle
-            self.rotate(self.axis, flag)
+            self.current_angle += self.delta_angle  # update next angle
+            self.rotate(self.axis, flag)  # rotate to corresponding angle
             time.sleep(1)
-            while self.running and not self.is_auto:
+            while self.running and not self.is_auto:  # wait for capture confirmation
                 if self.ready_for_frame:
                     self.ready_for_frame = False
                     break
-            self.add_frame(self.wnd.main_tab.th.frame)
-            self.progress_signal.emit("Scanning...", int(100 * len(self.frames)/(360/self.delta_angle + 1)))
-        if self.is_canceled:
+            self.add_frame(self.wnd.main_tab.th.frame)  # add current frame
+            self.progress_signal.emit(  # update progress bar
+                "Scanning...", int(100 * len(self.frames)/(360/self.delta_angle + 1))
+            )
+        if self.is_canceled:  # safety measure when canceling scan
             self.wnd.ser.send_command(f"release {self.axis}")
         else:
             info = (
@@ -63,8 +64,8 @@ class ScanningThread(QThread):  # thread processing the scanning process
                 self.delta_angle,
                 self.is_auto
             )
-            self.scan_signal.emit(self.frames, info)
-        self.wnd.threads.remove(self)
+            self.scan_signal.emit(self.frames, info)  # send frames and info of scan to new ScanTab
+        self.wnd.threads.remove(self)  # remove current thread to list of threads
 
     def rotate(self, axis, flag):  # send the instruction to RPi for current rotation
         if axis == "Roll":

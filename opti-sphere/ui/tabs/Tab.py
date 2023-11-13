@@ -1,7 +1,7 @@
 from PySide6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout
 
 
-class Tab(QWidget):
+class Tab(QWidget):  # parent tab class
     def __init__(self):
         super().__init__()
 

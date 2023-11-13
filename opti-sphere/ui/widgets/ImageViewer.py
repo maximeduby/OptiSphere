@@ -4,8 +4,9 @@ from PySide6.QtGui import QWheelEvent, QImage, QPixmap
 from PySide6.QtWidgets import QGraphicsView, QGraphicsScene, QGraphicsPixmapItem, QFrame, QRubberBand
 
 
-class ImageViewer(QGraphicsView):
+class ImageViewer(QGraphicsView):  # image renderer
     box_signal = Signal(tuple)
+
     def __init__(self):
         super().__init__()
         self.setGeometry(0, 0, 840, 640)
@@ -25,20 +26,20 @@ class ImageViewer(QGraphicsView):
         self.selection = None
         self.is_selecting, self.selection_mode = False, False
 
-    def wheelEvent(self, event: QWheelEvent):
+    def wheelEvent(self, event: QWheelEvent):  # zoom on image when mouse wheel triggered
         zoom_factor = event.angleDelta().y() / 1800
         new_zoom = min(5, max(1, self.zoom + zoom_factor))  # zoom between [1, 5]
         scale_factor = new_zoom / self.zoom
         self.scale(scale_factor, scale_factor)
         self.zoom = new_zoom
-        if self.zoom == 1.0:
+        if self.zoom == 1.0:  # disable dragging when zoom is 1.0 (default)
             self.setDragMode(QGraphicsView.DragMode.NoDrag)
         else:
             self.setDragMode(QGraphicsView.DragMode.ScrollHandDrag)
 
     @Slot()
-    def set_image(self, frame):
-        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    def set_image(self, frame):  # update image with frame
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)  # reverse colors order BGR --> RGB
         image = QImage(frame.tostring(),  # frame
                        frame.shape[1],  # width
                        frame.shape[0],  # height
@@ -49,8 +50,8 @@ class ImageViewer(QGraphicsView):
             self.size().width() / image.size().width(),
             self.size().height() / image.size().height()))
 
-    def mousePressEvent(self, event):
-        if self.selection_mode:
+    def mousePressEvent(self, event):  # triggered when clicking on image
+        if self.selection_mode:  # when selecting tracking ROI, draw selection on image
             if self.selection:
                 self.selection.hide()
             self.is_selecting = True
@@ -62,14 +63,14 @@ class ImageViewer(QGraphicsView):
             super().mousePressEvent(event)
             print(f"Coordinates: ({int(event.x()/self.image.scale())}, {int(event.y()/self.image.scale())})")
 
-    def mouseMoveEvent(self, event):
+    def mouseMoveEvent(self, event):  # triggered when mouse moves on image
         if self.selection_mode and self.is_selecting and self.selection:
             self.selection_destination = event.pos()
             self.selection.setGeometry(QRect(self.selection_origin, event.pos()).normalized())
         else:
             super().mouseMoveEvent(event)
 
-    def mouseReleaseEvent(self, event):
+    def mouseReleaseEvent(self, event):  # triggered when mouse release click on image
         if self.selection_mode and self.is_selecting and self.selection:
             self.is_selecting = False
             x1 = self.mapToScene(self.selection_origin).x() / self.image.scale()
@@ -77,7 +78,7 @@ class ImageViewer(QGraphicsView):
             x2 = self.mapToScene(self.selection_destination).x() / self.image.scale()
             y2 = self.mapToScene(self.selection_destination).y() / self.image.scale()
 
-            box = (
+            box = (  # create tracking box with mouse-selected area
                 int(min(x1, x2)),
                 int(min(y1, y2)),
                 int(abs(x2 - x1)),

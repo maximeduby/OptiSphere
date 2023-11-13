@@ -72,13 +72,13 @@ class ScanWidget(QWidget):
         layout.setAlignment(Qt.AlignTop)
         self.setLayout(layout)
 
-    def save_name(self, new_name):
+    def save_name(self, new_name):  # update scan name in tab bar
         self.scan.title = new_name
         self.update_signal.emit(new_name)
         self.name.clearFocus()
 
     @Slot()
-    def export_gif(self):
+    def export_gif(self):  # export scan frames to gif image at chosen location
         filename = QFileDialog.getSaveFileName(None, "Save GIF", self.scan.title, "Image (*.gif)")
         if filename[0] == '':
             return

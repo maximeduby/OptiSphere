@@ -11,7 +11,7 @@ class SerialThread(QThread):  # thread processing the writing and reading of dat
         self.reading = True
         self.threads = threads
 
-        self.timer = QTimer()
+        self.timer = QTimer()  # Timer for serial timeout
         self.timer.timeout.connect(lambda: [
             self.response_signal.emit(self.ser.ERROR, b"Serial communication timeout"),
             self.ser.signal_holder.print_signal.emit(self.ser.ERROR, b"Serial communication timeout")
@@ -19,14 +19,14 @@ class SerialThread(QThread):  # thread processing the writing and reading of dat
 
     def run(self):
         try:
-            self.threads.append(self)
-            if not self.ser.isOpen():
+            self.threads.append(self)  # add current thread to list of threads
+            if not self.ser.isOpen():  # check if serial port is open
                 print("Serial Not opened")
                 return
             print("Packet sent:", self.packet)
-            self.ser.write(self.packet)
+            self.ser.write(self.packet)  # send the packet to RPi
             self.ser.is_done = False
-            while self.reading:
+            while self.reading:  # wait for response of RPi
                 if self.ser.in_waiting and self.ser.read(1) == self.ser.SOP:
                     self.timer.stop()
                     category = self.ser.read(1)
@@ -45,7 +45,7 @@ class SerialThread(QThread):  # thread processing the writing and reading of dat
         self.threads.remove(self)
         print(self.threads)
 
-    def stop(self):
+    def stop(self):  # stop the thread
         self.reading = False
         self.timer.stop()
         self.wait()

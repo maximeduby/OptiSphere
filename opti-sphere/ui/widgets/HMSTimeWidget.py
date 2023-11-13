@@ -1,7 +1,7 @@
 from PySide6.QtWidgets import QWidget, QHBoxLayout, QSpinBox, QLabel
 
 
-class HMSTimeWidget(QWidget):
+class HMSTimeWidget(QWidget):  # widget to display duration with hours-minutes-seconds format
     def __init__(self, duration):
         super().__init__()
         self.duration = duration
@@ -32,5 +32,5 @@ class HMSTimeWidget(QWidget):
 
         self.setLayout(layout)
 
-    def get_value(self):
+    def get_value(self):  # return total seconds
         return self.seconds.value() + self.minutes.value()*60 + self.hours.value()*3600

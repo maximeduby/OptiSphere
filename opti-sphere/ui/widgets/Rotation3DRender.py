@@ -10,7 +10,7 @@ from PySide6.QtOpenGLWidgets import QOpenGLWidget
 from pyquaternion import Quaternion
 
 
-class Rotation3DRender(QOpenGLWidget):
+class Rotation3DRender(QOpenGLWidget):  # 3D render of a sphere for intuitive manipulation
     update_rot = Signal(int, int, int)
 
     def __init__(self, tracking_mode=False):
@@ -32,7 +32,7 @@ class Rotation3DRender(QOpenGLWidget):
 
         self.sel_points = []
 
-    def initializeGL(self) -> None:
+    def initializeGL(self) -> None:  # initialize OpenGL scene render properties
         glEnable(GL_DEPTH_TEST)  # for proper 3D rendering and avoid plan overlapping
         glEnable(GL_CULL_FACE)  # does not render what is not visible (improve rendering performance)
         glEnable(GL_COLOR_MATERIAL)  # smooth transition between colors
@@ -41,7 +41,7 @@ class Rotation3DRender(QOpenGLWidget):
         glEnable(GL_POINT_SMOOTH)
         glEnable(GL_LINE_SMOOTH)
 
-    def paintGL(self) -> None:
+    def paintGL(self) -> None:  # render scene
         # clear scene
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         glMatrixMode(GL_PROJECTION)
@@ -98,7 +98,7 @@ class Rotation3DRender(QOpenGLWidget):
             self.drag_x = event.x() * ratio - 100
             self.drag_y = (self.height() - event.y()) * ratio - 100
 
-    def mouseMoveEvent(self, event):
+    def mouseMoveEvent(self, event):  # rotate the sphere according to mouse translation (Trackball system)
         ratio = 200 / min(self.width(), self.height())
         x = event.x() * ratio - 100
         y = (self.height() - event.y()) * ratio - 100
@@ -122,13 +122,13 @@ class Rotation3DRender(QOpenGLWidget):
             self.drag_y = y
             self.update_rot.emit(self.roll_angle, self.pitch_angle, self.yaw_angle)
 
-    def wheelEvent(self, event: QWheelEvent):
+    def wheelEvent(self, event: QWheelEvent):  # zoom scene when mouse wheel triggered
         zoom_factor = event.angleDelta().y() / 1800
         new_zoom = min(3, max(0, self.zoom + zoom_factor))  # zoom between [0, 4]
         self.zoom = new_zoom
         self.update()
 
-    def quaternion_to_euler(self, q):
+    def quaternion_to_euler(self, q):  # convert quaternion to euler angles
         w, x, y, z = q
 
         # Calculate roll
@@ -147,7 +147,7 @@ class Rotation3DRender(QOpenGLWidget):
 
         return np.degrees(roll), np.degrees(pitch), np.degrees(yaw)
 
-    def euler_to_quaternion(self, roll, pitch, yaw):
+    def euler_to_quaternion(self, roll, pitch, yaw):  # convert euler angles to quaternion
         cy = np.cos(np.deg2rad(yaw) * .5, )
         sy = np.sin(np.deg2rad(yaw) * .5)
         cr = np.cos(np.deg2rad(roll) * .5)
@@ -163,7 +163,7 @@ class Rotation3DRender(QOpenGLWidget):
         return Quaternion(x=x, y=y, z=z, w=w)
 
     @staticmethod
-    def draw_bug():
+    def draw_bug():  # render a 3D bug inside the sphere to represent target
         # Body
         glColor3f(1, 0, 0)
         glutSolidSphere(0.5, 20, 20)

@@ -8,7 +8,7 @@ class SnapshotThread(QThread):
         super().__init__()
         self.source = cam_thread
 
-    def run(self):
+    def run(self):  # get the frame from camera feed and send it to new SnapshotTab
         frame = self.source.frame
         if frame is not None:
             self.ss_signal.emit(frame)

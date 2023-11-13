@@ -1,7 +1,7 @@
 import cv2
 
 from PySide6.QtCore import Slot, Qt, Signal
-from PySide6.QtGui import QShortcut, QIcon
+from PySide6.QtGui import QShortcut
 from PySide6.QtSvgWidgets import QSvgWidget
 from PySide6.QtWidgets import QTabWidget, QWidget, QVBoxLayout, QLabel, QPushButton, QHBoxLayout, QDialog
 
@@ -17,6 +17,7 @@ from ui.widgets.CaptureWidget import CaptureWidget
 
 class MainTab(Tab):
     box_signal = Signal(tuple)
+
     def __init__(self, wnd):
         super().__init__()
         self.wnd = wnd
@@ -74,7 +75,7 @@ class MainTab(Tab):
         QShortcut(Qt.Key.Key_Escape, self, self.release_tracking)
 
     @Slot()
-    def select_camera_source(self):
+    def select_camera_source(self):  # update camera feed to selected camera source
         device_index = self.wnd.cam_devices_group.checkedAction().data()
         self.th.stop()
         self.th = CameraThread(device_index, self.wnd.threads)
@@ -82,8 +83,8 @@ class MainTab(Tab):
         self.th.start()
 
     @Slot()
-    def handle_camera_feed(self, frame):
-        if self.is_tracking_on:
+    def handle_camera_feed(self, frame):  # set current frame to camera feed widget with or without tracking box
+        if self.is_tracking_on:  # if tracking is activated --> draw tracking box on top of frame
             ok, box = self.tracker.update(self.th.get_monochrome())
             if ok:
                 self.box_signal.emit(box)
@@ -98,13 +99,13 @@ class MainTab(Tab):
 
         self.camera_feed.set_image(frame)
 
-    def release_tracking(self):
+    def release_tracking(self):  # stop tracking
         if self.is_tracking_on:
             self.tracking.init_tracking()
         if self.camera_feed.selection_mode:
             self.tracking.roi_selection()
 
-    def set_action(self, action):
+    def set_action(self, action):  # disable other control tabs when one is running to avoid intertwined threads
         if action == "rotation":
             self.tracking.setEnabled(False)
             self.scanning.setEnabled(False)
@@ -120,7 +121,7 @@ class MainTab(Tab):
             self.scanning.setEnabled(True)
 
     @Slot()
-    def start_calibration(self):
+    def start_calibration(self):  # show calibration instructions and calibrate system
         calib = CalibrationDialog(self.wnd)
         ready = calib.exec()
         if ready == QDialog.DialogCode.Accepted:
@@ -129,7 +130,6 @@ class MainTab(Tab):
             self.control.setHidden(False)
 
     @Slot()
-    def pass_calibration(self):
+    def pass_calibration(self):  # pass calibration and show control tabs
         self.calibration.setHidden(True)
         self.control.setHidden(False)
-

@@ -2,7 +2,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel
 
 
-class StepWidget(QWidget):
+class StepWidget(QWidget):  # widget for calibration window
     def __init__(self, step, text):
         super().__init__()
         self.setFixedSize(200, 200)

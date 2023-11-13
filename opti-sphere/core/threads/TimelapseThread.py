@@ -13,7 +13,7 @@ class TimelapseThread(QThread):
         self.running = True
         self.delta_time = delta_time
 
-        self.timer = QTimer(self)
+        self.timer = QTimer(self)  # timer interval between two frames' capture
         self.timer.setInterval(1000 * self.delta_time)
         self.timer.timeout.connect(self.get_frame)
         self.timer.start()
@@ -33,7 +33,7 @@ class TimelapseThread(QThread):
         self.threads.remove(self)
 
     @Slot()
-    def get_frame(self):
+    def get_frame(self):  # add current camera feed frame to timelapse frames
         self.frames.append(self.source.frame)
 
     @Slot()

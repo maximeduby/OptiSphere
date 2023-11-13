@@ -12,7 +12,7 @@ class VideoThread(QThread):
         self.frames = []
         self.running = True
 
-        self.timer = QTimer()
+        self.timer = QTimer()  # timer interval between to frames' capture
         self.timer.setInterval(1000/self.source.fps)
         self.timer.timeout.connect(self.get_frame)
         self.timer.start()
@@ -32,7 +32,7 @@ class VideoThread(QThread):
         self.threads.remove(self)
 
     @Slot()
-    def get_frame(self):
+    def get_frame(self):  # add current camera feed frame to video frames
         self.frames.append(self.source.frame)
 
     @Slot()

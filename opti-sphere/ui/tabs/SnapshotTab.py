@@ -20,16 +20,16 @@ class SnapshotTab(Tab):
         self.scene_layout.addWidget(self.snapshot)
         self.sidebar_layout.addWidget(self.ss_widget)
 
-    def export(self):
+    def export(self):  # export snapshot to chosen location
         filename = QFileDialog.getSaveFileName(None, "Export Image", self.title, "Image (*.tiff *.jpg *.png)")
         if filename[0] == '':
             return
         cv2.imwrite(filename[0], self.frame)
 
-    def get_dimensions(self):
+    def get_dimensions(self):  # return snapshot's dimensions
         w = self.frame.shape[1]
         h = self.frame.shape[0]
         return f"{w} × {h}"
 
-    def resizeEvent(self, event):
+    def resizeEvent(self, event):  # update image size according to window size
         self.snapshot.set_image(self.frame)

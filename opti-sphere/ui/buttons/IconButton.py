@@ -4,15 +4,13 @@ from PySide6.QtSvg import QSvgRenderer
 from PySide6.QtWidgets import QPushButton
 
 
-
-
 class IconButton(QPushButton):
     def __init__(self, icon_path):
         super().__init__()
-        self.icon_path = icon_path
-        self.set_icon_color("#FFFFFF")
+        self.icon_path = icon_path  # path of icon
+        self.set_icon_color("#FFFFFF")  # main color of icon
 
-    def set_icon_color(self, color):
+    def set_icon_color(self, color):  # create copy of icon with new color
         renderer = QSvgRenderer(self.icon_path)
         aspect_ratio = renderer.viewBox().size().width() / renderer.viewBox().size().height()
 

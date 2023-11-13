@@ -82,8 +82,9 @@ class MainWindow(QMainWindow):
         # recovery
         self.fetch_recovery()
 
-    def close_tab(self, index):
+    def close_tab(self, index):  # close triggered tab
         if index != 0:
+            # ask for confirmation
             confirm = QMessageBox.question(self,
                                            "Close Tab",
                                            "Are you sure you want to close this tab?",
@@ -91,14 +92,15 @@ class MainWindow(QMainWindow):
                                            QMessageBox.StandardButton.Cancel)
             if confirm == QMessageBox.StandardButton.Yes:
                 tab = self.tabs.widget(index)
-                if tab.__class__.__name__ in ["ScanTab", "TrackTab"]:
+                if tab.__class__.__name__ in ["ScanTab", "TrackTab"]:  # remove recovery folder if tab is closed
                     shutil.rmtree(os.path.join("recovery"), tab.info[0])
                     if not os.path.exists("recovery"):
                         os.makedirs("recovery")
                 self.tabs.removeTab(index)
                 self.tabs.setCurrentWidget(self.main_tab)
 
-    def closeEvent(self, event):
+    def closeEvent(self, event):  # close the app
+        # ask for confirmation
         confirm = QMessageBox.question(self,
                                        "Close App",
                                        "Are you sure you want to close?",
@@ -107,13 +109,13 @@ class MainWindow(QMainWindow):
         if confirm == QMessageBox.StandardButton.Close:
             for window in QApplication.topLevelWidgets():
                 window.close()
-            for th in reversed(self.threads):
+            for th in reversed(self.threads):  # make sure all threads close properly before quitting
                 th.stop()
             event.accept()
         else:
             event.ignore()
 
-    def init_menu_bar(self):
+    def init_menu_bar(self):  # initialize menu bar actions
         # file menu
         self.file_menu.addAction("Import", lambda: self.import_data())
         self.file_menu.addAction('Export', lambda: self.tabs.currentWidget().export())
@@ -129,7 +131,8 @@ class MainWindow(QMainWindow):
         self.tools_menu.addAction('Connect to serial', self.open_serial_setup)
         self.tools_menu.addAction('Serial Terminal', self.open_serial_terminal)
         self.tools_menu.addAction('Calibrate System', self.main_tab.start_calibration)
-    def update_camera_menu(self):
+
+    def update_camera_menu(self):  # update camera sources with available sources
         for action in self.cam_devices_group.actions():
             self.cam_menu.removeAction(action)
             action.deleteLater()
@@ -142,7 +145,7 @@ class MainWindow(QMainWindow):
             self.cam_devices_group.addAction(cam_device_action)
             self.cam_menu.addAction(cam_device_action)
 
-    def tab_changed(self, index):
+    def tab_changed(self, index):  # allow export tool if current tab is not the MainTab
         if self.tabs.widget(index).__class__.__name__ == "MainTab":
             try:
                 self.file_menu.actions()[1].setEnabled(False)
@@ -152,15 +155,15 @@ class MainWindow(QMainWindow):
             self.file_menu.actions()[1].setEnabled(True)
 
     @Slot()
-    def update_name(self, new_name):
+    def update_name(self, new_name):  # update tab name with new_name
         self.tabs.setTabText(self.tabs.currentIndex(), new_name)
 
-    def open_serial_terminal(self):
+    def open_serial_terminal(self):  # show Serial Terminal
         if self.ser.isOpen():
             self.tools_menu.actions()[0].setEnabled(False)
             self.terminal.show()
 
-    def open_serial_setup(self):
+    def open_serial_setup(self):  # select serial port
         ports = ['--None--'] + self.ser.available_port()
         port, ok = QInputDialog().getItem(self, "Select Port", "Port:", ports, -1, False)
         if ok and port:
@@ -170,7 +173,7 @@ class MainWindow(QMainWindow):
                 print(f"Port chosen: {port}")
                 self.setup_serial_connection(port)
 
-    def setup_serial_connection(self, port=None):
+    def setup_serial_connection(self, port=None):  # setup new Serial Communication with selected port
         if not port:
             ports = self.ser.available_port()
             if ports:
@@ -189,7 +192,7 @@ class MainWindow(QMainWindow):
             print("Error: Could not find any device for serial communication")
             QMessageBox(self).critical(self, "Error", f"Could not find any device for serial communication")
 
-    def fetch_recovery(self):
+    def fetch_recovery(self):  # recover Scans and Tracks from recovery folder
         if not os.path.exists("recovery"):
             os.makedirs("recovery")
             return
@@ -260,7 +263,7 @@ class MainWindow(QMainWindow):
             except FileExistsError or FileNotFoundError as e:
                 print(e)
 
-    def import_data(self):
+    def import_data(self):  # import data to software (image, video, scan, track)
         files = QFileDialog.getOpenFileNames(self,
                                              "Select one or more files to open",
                                              "/",

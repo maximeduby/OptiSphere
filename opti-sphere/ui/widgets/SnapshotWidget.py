@@ -47,7 +47,7 @@ class SnapshotWidget(QWidget):
         layout.setAlignment(Qt.AlignTop)
         self.setLayout(layout)
 
-    def save_name(self, new_name):
+    def save_name(self, new_name):  # update snapshot name in tab bar
         self.snapshot.title = new_name
         self.update_signal.emit(new_name)
         self.name.clearFocus()

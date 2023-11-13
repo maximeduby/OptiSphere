@@ -1,8 +1,6 @@
 from PySide6.QtCore import Slot
-from PySide6.QtGui import QIcon
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QComboBox, QPushButton, QSpinBox, \
-    QDoubleSpinBox, QCheckBox, QFrame, QProgressBar
-
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QComboBox, QPushButton, QDoubleSpinBox, \
+    QCheckBox
 
 from core.threads.ScanningThread import ScanningThread
 from ui.tabs.ScanTab import ScanTab
@@ -92,7 +90,7 @@ class ScanningTab(QWidget):
         self.setLayout(layout)
 
     @Slot()
-    def scan(self):
+    def scan(self):  # start new scan
         self.wnd.main_tab.set_action("scanning")
         self.scan_btn.setEnabled(False)
         self.scan_progress.setHidden(False)
@@ -112,11 +110,11 @@ class ScanningTab(QWidget):
         self.scan_th.finished.connect(lambda: self.scan_btn.setEnabled(True))
 
     @Slot()
-    def change_method(self):
+    def change_method(self):  # show/hide additional parameters according to current method
         self.frame_method.setHidden(self.method.currentIndex() != 0)
 
     @Slot()
-    def add_scan_tab(self, frames, info):
+    def add_scan_tab(self, frames, info):  # create new ScanTab to show result of scan
         self.wnd.main_tab.set_action("none")
         self.scan_progress.setHidden(True)
         self.scan_widget.setHidden(True)
@@ -129,17 +127,17 @@ class ScanningTab(QWidget):
         self.scan_counter += 1
 
     @Slot()
-    def set_ready_for_frame(self):
+    def set_ready_for_frame(self):  # frame ready to be captured [manual mode only]
         self.scan_th.ready_for_frame = True
 
     @Slot()
-    def switch_auto_mode(self):
+    def switch_auto_mode(self):  # finish current manual scan in automatic
         self.scan_th.is_auto = True
         self.capture_btn.setHidden(True)
         self.switch_auto_btn.setHidden(True)
 
     @Slot()
-    def cancel_scan(self):
+    def cancel_scan(self):  # cancel scan properly
         self.scan_th.is_canceled = True
         self.scan_th.running = False
         self.scan_progress.setHidden(True)

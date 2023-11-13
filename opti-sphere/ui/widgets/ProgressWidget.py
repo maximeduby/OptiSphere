@@ -2,7 +2,7 @@ from PySide6.QtCore import Slot
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QProgressBar, QLabel, QHBoxLayout
 
 
-class ProgressWidget(QWidget):
+class ProgressWidget(QWidget):  # visualize progress in percentage of a process (scanning for example)
     def __init__(self):
         super().__init__()
         layout = QVBoxLayout()
@@ -24,12 +24,12 @@ class ProgressWidget(QWidget):
         self.setLayout(layout)
 
     @Slot()
-    def update_progress(self, status, progress):
+    def update_progress(self, status, progress):  # update slider, value and status according to parameters
         self.progress.setValue(progress)
         self.percentage.setText(f"{progress}%")
         self.status.setText(status)
 
-    def reset(self):
+    def reset(self):  # reset slider, value and status
         self.progress.reset()
         self.percentage.setText("0%")
         self.status.setText("")

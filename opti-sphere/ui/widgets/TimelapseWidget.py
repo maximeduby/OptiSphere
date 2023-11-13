@@ -65,12 +65,12 @@ class TimelapseWidget(QWidget):
         self.setLayout(layout)
 
     @Slot()
-    def update_fps(self, value):
+    def update_fps(self, value):  # update frequency of timelapse's video playback
         self.timelapse.fps = value
         self.duration.setText(self.timelapse.get_duration())
         self.timelapse.timestamp.setText(self.timelapse.get_timestamp())
 
-    def save_name(self, new_name):
+    def save_name(self, new_name):  # update timelapse name in tab bar
         self.timelapse.title = new_name
         self.update_signal.emit(new_name)
         self.name.clearFocus()

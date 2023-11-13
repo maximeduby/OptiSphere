@@ -51,7 +51,7 @@ class VideoWidget(QWidget):
         layout.setAlignment(Qt.AlignTop)
         self.setLayout(layout)
 
-    def save_name(self, new_name):
+    def save_name(self, new_name):  # update video name in tab bar
         self.video.title = new_name
         self.update_signal.emit(new_name)
         self.name.clearFocus()

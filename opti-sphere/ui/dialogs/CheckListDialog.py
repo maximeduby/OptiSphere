@@ -51,17 +51,17 @@ class CheckListDialog(QDialog):
         self.select_all_button.clicked.connect(self.select_all)
         self.unselect_all_button.clicked.connect(self.unselect_all)
 
-    def open_selection(self):
+    def open_selection(self):  # get all items checked
         self.choices = [self.model.item(i).text()
                         for i in range(self.model.rowCount())
                         if self.model.item(i).checkState() == Qt.CheckState.Checked]
         self.accept()
 
-    def select_all(self):
+    def select_all(self):  # check all items available
         for i in range(self.model.rowCount()):
             self.model.item(i).setCheckState(Qt.CheckState.Checked)
 
-    def unselect_all(self):
+    def unselect_all(self):  # uncheck all items available
         for i in range(self.model.rowCount()):
             self.model.item(i).setCheckState(Qt.CheckState.Unchecked)
 

@@ -70,7 +70,7 @@ class RotationTab(QWidget):
         self.wnd.sphere.update_rot.connect(self.update_rotation)
 
     @Slot()
-    def handle_roll(self, value):
+    def handle_roll(self, value):  # update roll widgets with new roll value
         self.roll_spinbox.setValue(value)
         self.roll_slider.setValue(value)
         self.rotation_render.roll_angle = value
@@ -78,7 +78,7 @@ class RotationTab(QWidget):
         self.check_values()
 
     @Slot()
-    def handle_pitch(self, value):
+    def handle_pitch(self, value):  # update pitch widgets with new pitch value
         self.pitch_spinbox.setValue(value)
         self.pitch_slider.setValue(value)
         self.rotation_render.pitch_angle = value
@@ -86,7 +86,7 @@ class RotationTab(QWidget):
         self.check_values()
 
     @Slot()
-    def handle_yaw(self, value):
+    def handle_yaw(self, value):  # update yaw widgets with new yaw value
         self.yaw_spinbox.setValue(value)
         self.yaw_slider.setValue(value)
         self.rotation_render.yaw_angle = value
@@ -94,7 +94,7 @@ class RotationTab(QWidget):
         self.check_values()
 
     @Slot()
-    def handle_3d_render(self, roll, pitch, yaw):
+    def handle_3d_render(self, roll, pitch, yaw):  # update 3D render with new roll-pitch-yaw values
         self.roll_slider.setValue((roll + 180) % 360 - 180)
         self.roll_spinbox.setValue((roll + 180) % 360 - 180)
 
@@ -104,7 +104,7 @@ class RotationTab(QWidget):
         self.yaw_slider.setValue((yaw + 180) % 360 - 180)
         self.yaw_spinbox.setValue((yaw + 180) % 360 - 180)
 
-    def check_values(self):
+    def check_values(self):  # allow rotation only if values have changed
         if ((self.rotation_render.roll_angle,
              self.rotation_render.pitch_angle,
              self.rotation_render.yaw_angle)
@@ -114,7 +114,7 @@ class RotationTab(QWidget):
             self.apply_rot_btn.setEnabled(False)
 
     @Slot()
-    def apply_rot(self):
+    def apply_rot(self):  # send rotation to RPi
         self.wnd.main_tab.set_action("rotation")
         rot = (
             self.roll_spinbox.value(),
@@ -127,7 +127,7 @@ class RotationTab(QWidget):
         self.wnd.main_tab.set_action("none")
 
     @Slot()
-    def update_rotation(self, roll, pitch, yaw):
+    def update_rotation(self, roll, pitch, yaw):  # update all widgets with new roll-pitch-yaw values
         self.handle_roll(roll)
         self.handle_pitch(pitch)
         self.handle_yaw(yaw)

@@ -18,7 +18,7 @@ class CaptureWidget(QWidget):
         self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground)
         self.wnd = wnd
 
-        self.ss_counter, self.vid_counter, self.tl_counter = 1, 1, 1
+        self.ss_counter, self.vid_counter, self.tl_counter = 1, 1, 1  # counts the number of captures for title
         self.vid_th, self.tl_th, self.tl_cooldown = None, None, None
         self.tl_duration = 90
         self.tl_delta_time = 1
@@ -83,7 +83,7 @@ class CaptureWidget(QWidget):
         self.setLayout(layout)
 
     @Slot()
-    def capture_ss(self):
+    def capture_ss(self):  # capture snapshot
         self.ss_btn.setEnabled(False)
         ss_th = SnapshotThread(self.wnd.main_tab.th)
         ss_th.ss_signal.connect(self.add_ss_tab)
@@ -92,7 +92,7 @@ class CaptureWidget(QWidget):
         self.ss_btn.setEnabled(True)
 
     @Slot()
-    def capture_vid(self):
+    def capture_vid(self):  # toggle capture video
         self.vid_btn.setEnabled(False)
         if self.vid_btn.objectName() == "start":
             self.vid_btn.setObjectName("stop")
@@ -110,10 +110,10 @@ class CaptureWidget(QWidget):
             self.vid_btn.setEnabled(True)
 
     @Slot()
-    def capture_tl(self):
+    def capture_tl(self):  # toggle capture timelapse
         self.tl_btn.setEnabled(False)
         if self.tl_btn.objectName() == "start":
-            dialog = EditTimelapseDialog(self.tl_duration, self.tl_delta_time)
+            dialog = EditTimelapseDialog(self.tl_duration, self.tl_delta_time)  # set timelapse parameters
             result = dialog.exec()
             if result == QDialog.DialogCode.Accepted:
                 self.tl_duration = dialog.get_duration()
@@ -137,7 +137,7 @@ class CaptureWidget(QWidget):
             self.tl_btn.setEnabled(True)
 
     @Slot()
-    def add_ss_tab(self, frame):
+    def add_ss_tab(self, frame):  # open new tab with captured snapshot
         title = f"snapshot{self.ss_counter}"
         snapshot_tab = SnapshotTab(frame, title)
         snapshot_tab.ss_widget.update_signal.connect(self.wnd.update_name)
@@ -146,7 +146,7 @@ class CaptureWidget(QWidget):
         self.ss_counter += 1
 
     @Slot()
-    def add_vid_tab(self, frames):
+    def add_vid_tab(self, frames):  # open new tab with captured video
         title = f"video{self.vid_counter}"
         video_tab = VideoTab(frames, title, self.wnd.fps)
         video_tab.vid_widget.update_signal.connect(self.wnd.update_name)
@@ -155,7 +155,7 @@ class CaptureWidget(QWidget):
         self.vid_counter += 1
 
     @Slot()
-    def add_tl_tab(self, frames):
+    def add_tl_tab(self, frames):  # open new tab with captured timelapse
         title = f"timelapse{self.tl_counter}"
         tl_tab = TimelapseTab(frames, title)
         tl_tab.tl_widget.update_signal.connect(self.wnd.update_name)

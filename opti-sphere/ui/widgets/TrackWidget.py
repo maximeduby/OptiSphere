@@ -1,5 +1,5 @@
 from PySide6.QtCore import Qt, Signal, Slot
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QHBoxLayout, QLineEdit, QPushButton, QTextEdit, \
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QHBoxLayout, QLineEdit, QTextEdit, \
     QTableWidget, QTableWidgetItem, QAbstractItemView, QComboBox
 
 
@@ -86,18 +86,18 @@ class TrackWidget(QWidget):
         layout.setAlignment(Qt.AlignTop)
         self.setLayout(layout)
 
-    def save_name(self, new_name):
+    def save_name(self, new_name):  # update track name in tab bar
         self.track.title = new_name
         self.update_signal.emit(new_name)
         self.name.clearFocus()
 
-    def calculate_dist(self):
+    def calculate_dist(self):  # return the total distance traveled by the target
         dist = 0
         for i in range(1, len(self.track.track)):
             dist += self.track.track[i].get_distance(self.track.track[i-1])
         return "%0.2f cm" % dist
 
-    def load_data(self, track, spherical_format=True):
+    def load_data(self, track, spherical_format=True):  # load the data measured in a table
         self.table.setRowCount(len(track))
         for i, data in enumerate(track):
             a, b, c = data.coords if spherical_format else data.get_cartesian()
@@ -108,12 +108,12 @@ class TrackWidget(QWidget):
             self.table.setItem(i, 3, QTableWidgetItem(str(d)))
 
     @Slot()
-    def select_cells(self):
+    def select_cells(self):  # show selected path point (or cell) on the 3D render
         self.track.spatial_tracking.sel_points = set([i.row() for i in self.table.selectedItems()])
         self.track.spatial_tracking.update()
 
     @Slot()
-    def update_format(self):
+    def update_format(self):  # update table according to data format (Euler or Spherical coordinates)
         if self.data_format.currentIndex() == 0:
             self.table.setHorizontalHeaderLabels(["R (cm)", "θ (deg)", "φ (deg)", "Time"])
             self.load_data(self.track.track, spherical_format=True)
