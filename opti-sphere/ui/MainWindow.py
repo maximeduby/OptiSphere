@@ -11,7 +11,7 @@ from PySide6.QtCore import Slot
 from PySide6.QtGui import QScreen, QActionGroup, QAction
 from PySide6.QtMultimedia import QMediaDevices
 from PySide6.QtWidgets import (QMainWindow, QApplication, QWidget, QHBoxLayout,
-                               QTabWidget, QTabBar, QMessageBox, QInputDialog, QDialog, QFileDialog)
+                               QTabWidget, QTabBar, QMessageBox, QInputDialog, QDialog, QFileDialog, QMenu)
 
 from config import WINDOW_WIDTH, WINDOW_HEIGHT
 
@@ -23,6 +23,7 @@ from ui.tabs.ScanTab import ScanTab
 from ui.tabs.SnapshotTab import SnapshotTab
 from ui.tabs.TrackTab import TrackTab
 from ui.tabs.VideoTab import VideoTab
+from ui.widgets.ImageViewer import ImageViewer, ImageScale
 from ui.widgets.SerialTerminal import SerialTerminal
 from ui.tabs.MainTab import MainTab
 
@@ -131,6 +132,13 @@ class MainWindow(QMainWindow):
         self.tools_menu.addAction('Connect to serial', self.open_serial_setup)
         self.tools_menu.addAction('Serial Terminal', self.open_serial_terminal)
         self.tools_menu.addAction('Calibrate System', self.main_tab.start_calibration)
+        scale_menu = QMenu("Scale Bar")
+        toggle_scale_action = QAction("Show/Hide Scale Bar", scale_menu, checkable=True)
+        toggle_scale_action.triggered.connect(
+            lambda: classmethod(ImageViewer.toggle_scale_bar(toggle_scale_action.isChecked())))
+        scale_menu.addAction(toggle_scale_action)
+        scale_menu.addAction("Setup Scale Bar", lambda: classmethod(ImageScale.setup_scale_bar()))
+        self.tools_menu.addMenu(scale_menu)
 
     def update_camera_menu(self):  # update camera sources with available sources
         for action in self.cam_devices_group.actions():

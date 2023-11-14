@@ -20,7 +20,7 @@ class ScanTab(Tab):
         self.current_frame = 0
 
         self.scan = ImageViewer()
-        self.scan.set_image(self.frames[self.current_frame])
+        self.scan.gv.set_image(self.frames[self.current_frame])
 
         scan_control = QWidget(objectName="widget-container")
         scan_control_layout = QHBoxLayout()
@@ -41,7 +41,7 @@ class ScanTab(Tab):
     @Slot()
     def set_frame(self, value):  # update displayed frame according to slider value
         self.current_frame = value
-        self.scan.set_image(self.frames[self.current_frame])
+        self.scan.gv.set_image(self.frames[self.current_frame])
         self.index.setText(f"Frame {self.current_frame}")
 
     def get_dimensions(self):  # return frame's dimensions

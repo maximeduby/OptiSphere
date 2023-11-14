@@ -21,7 +21,7 @@ class VideoTab(Tab):
         self.is_running = False
 
         self.video = ImageViewer()
-        self.video.set_image(self.frames[self.current_frame])
+        self.video.gv.set_image(self.frames[self.current_frame])
 
         video_player = QWidget(objectName="widget-container")
         video_control = QHBoxLayout()
@@ -65,7 +65,7 @@ class VideoTab(Tab):
     def update_video(self):  # update displayed frame and other widgets according to current frame index
         if self.is_running:
             if self.current_frame < len(self.frames):
-                self.video.set_image(self.frames[self.current_frame])
+                self.video.gv.set_image(self.frames[self.current_frame])
                 self.slider.setSliderPosition(self.current_frame)
                 self.timestamp.setText(self.get_timestamp())
                 self.current_frame += 1
@@ -81,7 +81,7 @@ class VideoTab(Tab):
     @Slot()
     def set_frame(self, value):  # update displayed frame and timestamp according to slider position
         self.current_frame = value
-        self.video.set_image(self.frames[self.current_frame])
+        self.video.gv.set_image(self.frames[self.current_frame])
         self.timestamp.setText(self.get_timestamp())
         self.slider.setSliderPosition(self.current_frame)
 
@@ -107,4 +107,4 @@ class VideoTab(Tab):
         output.release()
 
     def resizeEvent(self, event):  # update video frame size according to window size
-        self.video.set_image(self.frames[self.current_frame])
+        self.video.gv.set_image(self.frames[self.current_frame])

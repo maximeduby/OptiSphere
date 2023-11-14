@@ -22,7 +22,7 @@ class TimelapseTab(Tab):
         self.fps = 30
 
         self.timelapse = ImageViewer()
-        self.timelapse.set_image(self.frames[self.current_frame])
+        self.timelapse.gv.set_image(self.frames[self.current_frame])
 
         timelapse_player = QWidget(objectName="widget-container")
         timelapse_control = QHBoxLayout()
@@ -69,7 +69,7 @@ class TimelapseTab(Tab):
         if self.is_running:
             if self.current_frame < len(self.frames):
                 self.timer.setInterval(1000 / self.fps)
-                self.timelapse.set_image(self.frames[self.current_frame])
+                self.timelapse.gv.set_image(self.frames[self.current_frame])
                 self.slider.setSliderPosition(self.current_frame)
                 self.timestamp.setText(self.get_timestamp())
                 self.current_frame += 1
@@ -85,7 +85,7 @@ class TimelapseTab(Tab):
     @Slot()
     def set_frame(self, value):  # update displayed frame and timestamp according to slider position
         self.current_frame = value
-        self.timelapse.set_image(self.frames[self.current_frame])
+        self.timelapse.gv.set_image(self.frames[self.current_frame])
         self.timestamp.setText(self.get_timestamp())
         self.slider.setSliderPosition(self.current_frame)
 
@@ -116,4 +116,4 @@ class TimelapseTab(Tab):
         progress.close()
 
     def resizeEvent(self, event):  # update timelapse frame size according to window size
-        self.timelapse.set_image(self.frames[self.current_frame])
+        self.timelapse.gv.set_image(self.frames[self.current_frame])

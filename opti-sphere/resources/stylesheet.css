@@ -342,4 +342,12 @@ QProgressBar#progress-bar{
 QProgressBar#progress-bar::chunk {
     background-color: #105BF6;
     border-radius: 3px;
- }
+}
+
+QGraphicsView{
+    background-color: red;
+}
+
+QGraphicsScene{
+    background-color: green;
+}

@@ -13,7 +13,7 @@ class SnapshotTab(Tab):
         self.title = title
 
         self.snapshot = ImageViewer()
-        self.snapshot.set_image(self.frame)
+        self.snapshot.gv.set_image(self.frame)
 
         self.ss_widget = SnapshotWidget(self)
 
@@ -32,4 +32,4 @@ class SnapshotTab(Tab):
         return f"{w} × {h}"
 
     def resizeEvent(self, event):  # update image size according to window size
-        self.snapshot.set_image(self.frame)
+        self.snapshot.gv.set_image(self.frame)

@@ -97,12 +97,12 @@ class MainTab(Tab):
                     2
                 )
 
-        self.camera_feed.set_image(frame)
+        self.camera_feed.gv.set_image(frame)
 
     def release_tracking(self):  # stop tracking
         if self.is_tracking_on:
             self.tracking.init_tracking()
-        if self.camera_feed.selection_mode:
+        if self.camera_feed.gv.selection_mode:
             self.tracking.roi_selection()
 
     def set_action(self, action):  # disable other control tabs when one is running to avoid intertwined threads

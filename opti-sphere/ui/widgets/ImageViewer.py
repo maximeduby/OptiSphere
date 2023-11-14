@@ -1,17 +1,117 @@
 import cv2
+
 from PySide6.QtCore import Qt, Slot, QRect, QSize, Signal
-from PySide6.QtGui import QWheelEvent, QImage, QPixmap
-from PySide6.QtWidgets import QGraphicsView, QGraphicsScene, QGraphicsPixmapItem, QFrame, QRubberBand
+from PySide6.QtGui import QWheelEvent, QImage, QPixmap, QPainter, QColor
+from PySide6.QtWidgets import QGraphicsView, QGraphicsScene, QGraphicsPixmapItem, QFrame, QRubberBand, \
+    QStackedLayout, QWidget
 
 
-class ImageViewer(QGraphicsView):  # image renderer
+class ImageViewer(QWidget):  # image renderer
     box_signal = Signal(tuple)
+    is_scale_bar_visible = False
 
     def __init__(self):
         super().__init__()
-        self.setGeometry(0, 0, 840, 640)
+
+        layout = QStackedLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setStackingMode(QStackedLayout.StackAll)
+        layout.setAlignment(Qt.AlignmentFlag.AlignBottom)
+
+        self.gv = CustomGraphicsView(self)
+        self.image_scale = ImageScale(self)
+
+        layout.addWidget(self.gv)
+        layout.addWidget(self.image_scale)
+        self.setLayout(layout)
+
+    @classmethod
+    def toggle_scale_bar(cls, v):
+        cls.is_scale_bar_visible = v
+
+    def wheelEvent(self, event):
+        self.gv.wheelEvent(event)
+
+    def mousePressEvent(self, event):
+        self.gv.mousePressEvent(event)
+
+    def mouseMoveEvent(self, event):
+        self.gv.mouseMoveEvent(event)
+
+    def mouseReleaseEvent(self, event):
+        self.gv.mouseReleaseEvent(event)
+
+    def toggle_scale(self):
+        self.image_scale.setVisible(not self.image_scale.isVisible())
+
+
+class ImageScale(QWidget):
+    pix2mm = 0
+
+    def __init__(self, iv):
+        super().__init__()
+        self.iv = iv
+
+    def wheelEvent(self, event):
+        self.iv.wheelEvent(event)
+
+    def mousePressEvent(self, event):
+        self.iv.mousePressEvent(event)
+
+    def mouseMoveEvent(self, event):
+        self.iv.mouseMoveEvent(event)
+
+    def mouseReleaseEvent(self, event):
+        self.iv.mouseReleaseEvent(event)
+
+    def paintEvent(self, event):
+        if ImageViewer.is_scale_bar_visible:
+            painter = QPainter(self)
+            color = QColor(255, 0, 0)
+            painter.setPen(color)
+            x, y = 30, 20
+            scale_length, scale_value, scale_units = self.calc_scale()
+            painter.drawText(x, y, scale_length, y, Qt.AlignmentFlag.AlignCenter, f"{scale_value}{scale_units}")
+            painter.drawLine(x, y + 20, x + scale_length, y + 20)
+
+    def calc_scale(self):
+        scale_value, scale_length = 0, 0
+        base = 100
+        if self.pix2mm == 0:
+            return base, "?", "??"
+        base_length, scale_units = self.format_scale(base / (self.pix2mm * self.iv.gv.zoom))
+        steps = [500, 200, 100, 50, 20, 10, 5, 2, 1]
+        for step in steps:
+            if base_length > step:
+                scale_value = step
+                trail = (base_length - step) * base / step
+                scale_length = base + trail
+                break
+        return scale_length, scale_value, scale_units
+
+    @staticmethod
+    def format_scale(value):
+        if value >= 1:
+            return value, "mm"
+        elif value >= 0.001:
+            return value * 1000, "µm"
+        elif value >= 1e-06:
+            return value * 1e6, "nm"
+        else:
+            return value * 1e9, "pm"
+
+
+class CustomGraphicsView(QGraphicsView):
+    def __init__(self, iv):
+        super().__init__()
+        self.iv = iv
         self.zoom = 1
+        self.max_zoom = 5
         self.scene = QGraphicsScene(self)
+
+        # to remove
+        self.setBackgroundBrush(Qt.yellow)
+
         self.image = QGraphicsPixmapItem()
         self.scene.addItem(self.image)
         self.setScene(self.scene)
@@ -28,10 +128,11 @@ class ImageViewer(QGraphicsView):  # image renderer
 
     def wheelEvent(self, event: QWheelEvent):  # zoom on image when mouse wheel triggered
         zoom_factor = event.angleDelta().y() / 1800
-        new_zoom = min(5, max(1, self.zoom + zoom_factor))  # zoom between [1, 5]
+        new_zoom = min(self.max_zoom, max(1, self.zoom + zoom_factor))  # zoom between [1, 5]
         scale_factor = new_zoom / self.zoom
         self.scale(scale_factor, scale_factor)
         self.zoom = new_zoom
+        print(self.zoom)
         if self.zoom == 1.0:  # disable dragging when zoom is 1.0 (default)
             self.setDragMode(QGraphicsView.DragMode.NoDrag)
         else:
@@ -86,7 +187,10 @@ class ImageViewer(QGraphicsView):  # image renderer
             )
             if box[2] < 10 or box[3] < 10:
                 return
-            self.box_signal.emit(box)
+            self.iv.box_signal.emit(box)
 
         else:
             super().mouseReleaseEvent(event)
+
+    def resizeEvent(self, event):
+        self.update()

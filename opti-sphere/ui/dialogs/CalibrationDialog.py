@@ -1,3 +1,4 @@
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QDialog, QPushButton, QHBoxLayout, QVBoxLayout
 
 from ui.widgets.StepWidget import StepWidget
@@ -7,6 +8,7 @@ class CalibrationDialog(QDialog):
     def __init__(self, wnd):
         super().__init__()
         self.setWindowTitle("Calibration")
+        self.setWindowFlags(Qt.FramelessWindowHint)
         self.wnd = wnd
 
         steps_layout = QHBoxLayout()
