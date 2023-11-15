@@ -344,10 +344,26 @@ QProgressBar#progress-bar::chunk {
     border-radius: 3px;
 }
 
-QGraphicsView{
-    background-color: red;
+QPushButton#icon-btn{
+    height: 40px;
+    width: 40px;
+    background: #3e3e3e;
+    border-radius: 10px;
+    color: #CCCCCC;
 }
 
-QGraphicsScene{
-    background-color: green;
+QPushButton#icon-btn:hover{
+    height: 28px;
+    background: #4e4e4e;
+    color: #CCCCCC;
+}
+
+QPushButton#icon-btn:disabled{
+    height: 28px;
+    background: hsl(0, 0%, 17%);
+    border-radius: 10px;
+    color: hsl(0, 0%, 50%);
+}
+QPushButton#icon-btn:pressed{
+    background-color: hsl(0,0%, 37%);
 }

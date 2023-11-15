@@ -71,6 +71,7 @@ class MainWindow(QMainWindow):
         self.cam_devices_group = QActionGroup(self)
         self.init_menu_bar()
 
+        # show MainWindow
         self.show()
 
         # serial connection
@@ -137,7 +138,7 @@ class MainWindow(QMainWindow):
         toggle_scale_action.triggered.connect(
             lambda: classmethod(ImageViewer.toggle_scale_bar(toggle_scale_action.isChecked())))
         scale_menu.addAction(toggle_scale_action)
-        scale_menu.addAction("Setup Scale Bar", lambda: classmethod(ImageScale.setup_scale_bar()))
+        scale_menu.addAction("Setup Scale Bar", lambda: self.tabs.currentWidget().setup_scale_bar())
         self.tools_menu.addMenu(scale_menu)
 
     def update_camera_menu(self):  # update camera sources with available sources
@@ -385,3 +386,6 @@ class MainWindow(QMainWindow):
             else:
                 print("File(s) format not recognized")
                 QMessageBox(self).critical(self, "Error", "File(s) format not recognized")
+
+    def setup_scale_bar(self):
+        pass

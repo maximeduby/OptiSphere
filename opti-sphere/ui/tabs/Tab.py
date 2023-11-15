@@ -16,3 +16,6 @@ class Tab(QWidget):  # parent tab class
         layout.addLayout(self.scene_layout, 7)
         layout.addLayout(self.sidebar_layout, 3)
         self.setLayout(layout)
+
+    def setup_scale_bar(self):
+        pass

@@ -7,10 +7,12 @@ from PySide6.QtWidgets import QTabWidget, QWidget, QVBoxLayout, QLabel, QPushBut
 
 from core.threads.CameraThread import CameraThread
 from ui.dialogs.CalibrationDialog import CalibrationDialog
+from ui.dialogs.SetupScaleDialog import SetupScaleDialog
 from ui.tabs.RotationTab import RotationTab
 from ui.tabs.ScanningTab import ScanningTab
 from ui.tabs.Tab import Tab
 from ui.tabs.TrackingTab import TrackingTab
+from ui.widgets.ImageScale import ImageScale
 from ui.widgets.ImageViewer import ImageViewer
 from ui.widgets.CaptureWidget import CaptureWidget
 
@@ -133,3 +135,9 @@ class MainTab(Tab):
     def pass_calibration(self):  # pass calibration and show control tabs
         self.calibration.setHidden(True)
         self.control.setHidden(False)
+
+    def setup_scale_bar(self):
+        dlg = SetupScaleDialog(self.th.frame)
+        if dlg.exec():
+            print(dlg.pix2mm)
+            # ImageScale.pix2mm = dlg.pix2mm

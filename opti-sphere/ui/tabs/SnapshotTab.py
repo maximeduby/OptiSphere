@@ -33,3 +33,6 @@ class SnapshotTab(Tab):
 
     def resizeEvent(self, event):  # update image size according to window size
         self.snapshot.gv.set_image(self.frame)
+
+    def setup_scale_bar(self):
+        print("hi")
