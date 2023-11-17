@@ -367,3 +367,7 @@ QPushButton#icon-btn:disabled{
 QPushButton#icon-btn:pressed{
     background-color: hsl(0,0%, 37%);
 }
+
+QPushButton#icon-btn:focus{
+    background: hsl(220, 93%, 51%);
+}

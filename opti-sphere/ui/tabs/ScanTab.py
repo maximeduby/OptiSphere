@@ -4,6 +4,7 @@ import shutil
 from PySide6.QtCore import Qt, Slot
 from PySide6.QtWidgets import QWidget, QHBoxLayout, QLabel, QSlider, QFileDialog
 
+from ui.dialogs.SetupScaleDialog import SetupScaleDialog
 from ui.tabs.Tab import Tab
 from ui.widgets.ImageViewer import ImageViewer
 from ui.widgets.ScanWidget import ScanWidget
@@ -55,3 +56,8 @@ class ScanTab(Tab):
         old_directory = os.path.join("recovery", self.info[0])
         shutil.copytree(old_directory, new_directory)
 
+    def setup_scale_bar(self):  # set up the scale from the current frame of the scan
+        dlg = SetupScaleDialog(self.frames[self.current_frame])
+        if dlg.exec():
+            self.scan.pix2mm = dlg.get_ratio()
+            ImageViewer.is_scale_bar_visible = True

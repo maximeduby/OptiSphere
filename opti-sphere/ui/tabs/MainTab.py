@@ -23,7 +23,7 @@ class MainTab(Tab):
     def __init__(self, wnd):
         super().__init__()
         self.wnd = wnd
-        self.camera_feed = ImageViewer()
+        self.camera_feed = ImageViewer(self)
         self.capture = CaptureWidget(self.wnd)
         self.control = QTabWidget(objectName="control-tabs")
         self.rotation = RotationTab(self.wnd)
@@ -139,5 +139,5 @@ class MainTab(Tab):
     def setup_scale_bar(self):
         dlg = SetupScaleDialog(self.th.frame)
         if dlg.exec():
-            print(dlg.pix2mm)
-            # ImageScale.pix2mm = dlg.pix2mm
+            ImageScale.pix2mm = dlg.get_ratio()
+            ImageViewer.is_scale_bar_visible = True

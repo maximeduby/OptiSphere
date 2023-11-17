@@ -3,7 +3,7 @@ from PySide6.QtCore import Qt, QTimer, Slot
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QPushButton, QLabel, QSlider, QHBoxLayout, QFileDialog, QWidget
 
-
+from ui.dialogs.SetupScaleDialog import SetupScaleDialog
 from ui.tabs.Tab import Tab
 from ui.widgets.ImageViewer import ImageViewer
 from ui.widgets.ProgressWidget import ProgressWidget
@@ -117,3 +117,9 @@ class TimelapseTab(Tab):
 
     def resizeEvent(self, event):  # update timelapse frame size according to window size
         self.timelapse.gv.set_image(self.frames[self.current_frame])
+
+    def setup_scale_bar(self):  # set up the scale from the current frame of the timelapse
+        dlg = SetupScaleDialog(self.frames[self.current_frame])
+        if dlg.exec():
+            self.timelapse.pix2mm = dlg.get_ratio()
+            ImageViewer.is_scale_bar_visible = True

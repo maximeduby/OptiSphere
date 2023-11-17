@@ -25,7 +25,7 @@ class ImageScale(QWidget):
         self.iv.mouseReleaseEvent(event)
 
     def paintEvent(self, event):
-        if IV.ImageViewer.is_scale_bar_visible:
+        if self.iv.is_scale_bar_visible and IV.ImageViewer.is_scale_bar_visible:
             painter = QPainter(self)
             color = QColor(255, 0, 0)
             painter.setPen(color)
@@ -39,13 +39,13 @@ class ImageScale(QWidget):
         base = 100
         if self.pix2mm == 0:
             return base, "?", "??"
-        base_length, scale_units = self.format_scale(base / (self.pix2mm * self.iv.gv.zoom))
-        steps = [500, 200, 100, 50, 20, 10, 5, 2, 1]
+        ratio = min(tuple(i / j for i, j in zip(self.iv.gv.size().toTuple(), self.iv.gv.im_dim)))
+        base_length, scale_units = self.format_scale(base / (self.pix2mm * ratio * self.iv.gv.zoom))
+        steps = [2, 5, 10, 20, 50, 100, 200, 500, 1000]
         for step in steps:
-            if base_length > step:
-                scale_value = step
-                trail = (base_length - step) * base / step
-                scale_length = base + trail
+            if base_length < step:
+                scale_value, scale_units = (1, "mm") if step == 1000 else (step, scale_units)
+                scale_length = base * step / base_length
                 break
         return scale_length, scale_value, scale_units
 
@@ -59,4 +59,3 @@ class ImageScale(QWidget):
             return value * 1e6, "nm"
         else:
             return value * 1e9, "pm"
-

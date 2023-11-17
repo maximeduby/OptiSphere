@@ -3,7 +3,7 @@ from PySide6.QtCore import QTimer, Slot, Qt
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QHBoxLayout, QPushButton, QLabel, QSlider, QFileDialog, QWidget
 
-
+from ui.dialogs.SetupScaleDialog import SetupScaleDialog
 from ui.tabs.Tab import Tab
 from ui.widgets.ImageViewer import ImageViewer
 from ui.widgets.VideoWidget import VideoWidget
@@ -108,3 +108,9 @@ class VideoTab(Tab):
 
     def resizeEvent(self, event):  # update video frame size according to window size
         self.video.gv.set_image(self.frames[self.current_frame])
+
+    def setup_scale_bar(self):  # set up the scale from the current frame of the video
+        dlg = SetupScaleDialog(self.frames[self.current_frame])
+        if dlg.exec():
+            self.video.pix2mm = dlg.get_ratio()
+            ImageViewer.is_scale_bar_visible = True

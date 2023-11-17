@@ -4,7 +4,7 @@ from PySide6.QtGui import QWheelEvent, QImage, QPixmap
 from PySide6.QtWidgets import QGraphicsView, QGraphicsScene, QGraphicsPixmapItem, QFrame, QRubberBand
 
 
-class CustomGraphicsView(QGraphicsView):
+class CustomGraphicsView(QGraphicsView):  # widget to display an image, zoom and pan on it
     def __init__(self, iv):
         super().__init__()
         self.iv = iv
@@ -94,7 +94,7 @@ class CustomGraphicsView(QGraphicsView):
         else:
             super().mouseReleaseEvent(event)
 
-    def resizeEvent(self, event):
+    def resizeEvent(self, event):  # update the image dimensions to fit the view when resizing the window
         self.fitInView(self.image.boundingRect(), Qt.AspectRatioMode.KeepAspectRatio)
         self.zoom = 1
         self.update()

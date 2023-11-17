@@ -9,8 +9,8 @@ class ImageViewer(QWidget):  # image renderer
     box_signal = Signal(tuple)
     is_scale_bar_visible = False
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, parent=None):
+        super().__init__(parent=parent)
 
         layout = QStackedLayout()
         layout.setContentsMargins(0, 0, 0, 0)
@@ -24,18 +24,30 @@ class ImageViewer(QWidget):  # image renderer
         layout.addWidget(self.image_scale)
         self.setLayout(layout)
 
+        self.is_measuring = False
+        self.measure_pos = (-1, -1)
+
     @classmethod
-    def toggle_scale_bar(cls, v):
+    def toggle_scale_bar(cls, v):  #show/hide the scale bar
         cls.is_scale_bar_visible = v
 
     def wheelEvent(self, event):
         self.gv.wheelEvent(event)
 
     def mousePressEvent(self, event):
-        self.gv.mousePressEvent(event)
+        if self.is_measuring:
+            self.parent().mousePressEvent(event)
+        else:
+            self.gv.mousePressEvent(event)
 
     def mouseMoveEvent(self, event):
-        self.gv.mouseMoveEvent(event)
+        if self.is_measuring:
+            self.parent().mouseMoveEvent(event)
+        else:
+            self.gv.mouseMoveEvent(event)
 
     def mouseReleaseEvent(self, event):
-        self.gv.mouseReleaseEvent(event)
+        if self.is_measuring:
+            self.parent().mouseReleaseEvent(event)
+        else:
+            self.gv.mouseReleaseEvent(event)

@@ -1,6 +1,7 @@
 import cv2
 from PySide6.QtWidgets import QFileDialog
 
+from ui.dialogs.SetupScaleDialog import SetupScaleDialog
 from ui.tabs.Tab import Tab
 from ui.widgets.ImageViewer import ImageViewer
 from ui.widgets.SnapshotWidget import SnapshotWidget
@@ -34,5 +35,8 @@ class SnapshotTab(Tab):
     def resizeEvent(self, event):  # update image size according to window size
         self.snapshot.gv.set_image(self.frame)
 
-    def setup_scale_bar(self):
-        print("hi")
+    def setup_scale_bar(self):  # set up the scale from the snapshot
+        dlg = SetupScaleDialog(self.frame)
+        if dlg.exec():
+            self.snapshot.pix2mm = dlg.get_ratio()
+            ImageViewer.is_scale_bar_visible = True
