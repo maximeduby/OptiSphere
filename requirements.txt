@@ -6,6 +6,6 @@ numpy~=1.25.2
 pyquaternion~=0.9.9
 PyOpenGL~=3.1.7
 PyOpenGL-accelerate~=3.1.7
-opencv-python~=4.8.0.74
+opencv-python~=4.8.1.78
 imageio~=2.31.6
 quantities~=0.14.1
